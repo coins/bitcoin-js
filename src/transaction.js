@@ -476,36 +476,36 @@ class Script {
     }
 
     static fromHex(hex) {
-        const scriptLength = new VarInt( hex.length / 2 ).toHex(); // FIXME should be VarInt not Uint8
+        const scriptLength = new VarInt(hex.length / 2).toHex(); // FIXME should be VarInt not Uint8
         hex = scriptLength + hex;
         return Script.read(new HexReader(hex));
     }
 
-    static fromAsm(asm){
+    static fromAsm(asm) {
         const tokens = asm.split(' ');
-        const script = tokens.map( token => {
+        const script = tokens.map(token => {
             const opcode = opcodes[token];
-            if(opcode){
+            if (opcode) {
                 return byteToHex(opcode)
             } else {
                 return token
             }
         }).join('');
-        return 
+        return
     }
 
-   toBuffer() {
+    toBuffer() {
         const buffer = new Uint8Array(this.byteLength());
         const writer = new Writer(buffer);
         this.write(writer);
         return writer.result();
     }
 
-    async toScriptHash(){
-        const hash = await HASH160( this.toBuffer() ) ;
-        const OP_HASH160 = 'a9'; 
-        const OP_PUSH20 = '14'; 
-        const OP_EQUAL = '87'; 
+    async toScriptHash() {
+        const hash = await HASH160(this.toBuffer());
+        const OP_HASH160 = 'a9';
+        const OP_PUSH20 = '14';
+        const OP_EQUAL = '87';
         return `${OP_HASH160}${OP_PUSH20}${hash._hex}${OP_EQUAL}`;
     }
 }
