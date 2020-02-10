@@ -1,4 +1,4 @@
-# bitcoin-js
+# bitcoin.js
 Bitcoin data structures
 
 ## Usage 
