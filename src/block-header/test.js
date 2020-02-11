@@ -5,7 +5,7 @@ const rawHeaderHash = '550ca73766e458b19b634b38c8c1054d8047aa04d5d10f00000000000
 
 describe('A BlockHeader', function() {
 
-    it('can be deserialized and serialized into a hex string', function() {
+    it('can be serialized and deserialized', function() {
         const header = BlockHeader.fromHex(rawHeader)
         expect(header.toHex()).toBe(rawHeader);
     })

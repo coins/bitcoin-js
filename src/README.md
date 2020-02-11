@@ -3,8 +3,8 @@ Bitcoin data structures
 
 ## Usage 
 
-```
-import 'bitcoin' from 'https://coins.github.io/bitcoin-js/src/bitcoin.js'
+```javascript
+import {bitcoin} from 'https://coins.github.io/bitcoin-js/bitcoin.js'
 
 // Do something...
 bitcoin

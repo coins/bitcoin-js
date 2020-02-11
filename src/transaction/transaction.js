@@ -1,7 +1,6 @@
-import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader } from '../../../buffer-js/src/serial-buffer.js'
+import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
 import { Buffer } from '../../../buffer-js/src/buffer.js'
 import { byteToHex } from '../../../buffer-js/src/buffer-utils.js'
-import { SHA256d } from '../../../hash-js/hash.js'
 import { opcodes } from './op-codes.js'
 
 
@@ -47,10 +46,9 @@ export class StandardTransaction extends Transaction {
         this.lockTime = new Uint32(lockTime);
     }
 
-    async txid() {
-        const txCopy = this.toBuffer();
-        const hash = await dSHA256(txCopy);
-        return new Hash(hash);
+    async id() {
+        const txCopy = this.toBuffer()
+        return SerialSHA256d.hash(txCopy)
     }
 
     static read(reader) {
@@ -156,8 +154,8 @@ class TxInputs {
 class TxInput {
 
     constructor(prevTxOutHash, prevTxOutIndex, scriptSig, sequence = 0xffffffff) {
-        if (!(prevTxOutHash instanceof Hash)) {
-            prevTxOutHash = Hash.fromHex(prevTxOutHash);
+        if (!(prevTxOutHash instanceof SerialSHA256d)) {
+            prevTxOutHash = SerialSHA256d.fromHex(prevTxOutHash);
         }
         this.prevTxOutHash = prevTxOutHash;
         this.prevTxOutIndex = new Uint32(prevTxOutIndex);
@@ -188,7 +186,7 @@ class TxInput {
     }
 
     static read(reader) {
-        const prevTxOutHash = Hash.read(reader);
+        const prevTxOutHash = SerialSHA256d.read(reader);
         const prevTxOutIndex = Uint32.read(reader);
         const scriptSig = Script.read(reader);
         const sequence = Uint32.read(reader);

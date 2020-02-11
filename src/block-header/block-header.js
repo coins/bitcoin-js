@@ -1,6 +1,5 @@
-import { Uint32, HexReader } from '../../../buffer-js/src/serial-buffer.js'
+import { Uint32, HexReader, SerialBuffer, SerialSHA256d  } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
 import { SHA256d } from '../../../hash-js/hash.js'
-import { SerialBuffer, SerialSHA256d } from '../../../buffer-js/src/serial-buffer.js'
 
 export class BlockHeader extends SerialBuffer {
 
