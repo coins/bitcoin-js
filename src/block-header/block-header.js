@@ -1,13 +1,12 @@
 import { Uint32, HexReader, SerialBuffer, SerialSHA256d  } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
-import { SHA256d } from '../../../hash-js/hash.js'
 
 export class BlockHeader extends SerialBuffer {
 
-    constructor(version, hashPrevBlock, hashMerkleRoot, timeStamp, bits, nonce) {
+    constructor(version, prevBlockId, merkleRoot, timeStamp, bits, nonce) {
         super()
         this.version = version;
-        this.hashPrevBlock = hashPrevBlock;
-        this.hashMerkleRoot = hashMerkleRoot;
+        this.prevBlockId = prevBlockId;
+        this.merkleRoot = merkleRoot;
         this.timeStamp = timeStamp;
         this.bits = bits;
         this.nonce = nonce;
@@ -15,8 +14,8 @@ export class BlockHeader extends SerialBuffer {
 
     write(writer) {
         this.version.write(writer);
-        this.hashPrevBlock.write(writer);
-        this.hashMerkleRoot.write(writer);
+        this.prevBlockId.write(writer);
+        this.merkleRoot.write(writer);
         this.timeStamp.write(writer);
         this.bits.write(writer);
         this.nonce.write(writer);
@@ -24,18 +23,18 @@ export class BlockHeader extends SerialBuffer {
 
     static read(reader) {
         const version = Uint32.read(reader);
-        const hashPrevBlock = SerialSHA256d.read(reader);
-        const hashMerkleRoot = SerialSHA256d.read(reader);
+        const prevBlockId = SerialSHA256d.read(reader);
+        const merkleRoot = SerialSHA256d.read(reader);
         const timeStamp = TimeStamp.read(reader);
         const bits = Bits.read(reader);
         const nonce = Uint32.read(reader);
-        return new BlockHeader(version, hashPrevBlock, hashMerkleRoot, timeStamp, bits, nonce);
+        return new BlockHeader(version, prevBlockId, merkleRoot, timeStamp, bits, nonce);
     }
 
     byteLength() {
         return this.version.byteLength() +
-            this.hashPrevBlock.byteLength() +
-            this.hashMerkleRoot.byteLength() +
+            this.prevBlockId.byteLength() +
+            this.merkleRoot.byteLength() +
             this.timeStamp.byteLength() +
             this.bits.byteLength() +
             this.nonce.byteLength();
@@ -43,17 +42,18 @@ export class BlockHeader extends SerialBuffer {
 
     blockId() {
         const txCopy = this.toBuffer();
-        return SHA256d.hash(txCopy);
+        return SerialSHA256d.hash(txCopy);
     }
 
-    async verifyPrev(prevHeader) {
-        const prevId = await prevHeader.blockId();
-        return Buffer.equals(this.hashPrevBlock, prevId);
+    async verifyPredecessor(prevHeader) {
+        // TODO: verify the time stamp
+        const prevId = await prevHeader.blockId()
+        return this.prevBlockId.equals(prevId)
     }
 
     async verifyProofOfWork() {
-        const proof = (await this.blockId()).reverse().toBigInt();  // reverse to fix Satoshi's byte order
-        return this.bits.difficulty > proof;
+        const proof = (await this.blockId()).reverse().toBigInt()  // reverse to fix Satoshi's byte order
+        return this.bits.difficulty > proof
     }
 }
 
