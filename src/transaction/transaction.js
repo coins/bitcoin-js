@@ -1,4 +1,11 @@
-class Transaction {
+import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader } from '../../../buffer-js/src/serial-buffer.js'
+import { Buffer } from '../../../buffer-js/src/buffer.js'
+import { byteToHex } from '../../../buffer-js/src/buffer-utils.js'
+import { SHA256d } from '../../../hash-js/hash.js'
+import { opcodes } from './op-codes.js'
+
+
+export class Transaction extends SerialBuffer {
 
     byteLength() {
         return this.version.byteLength() +
@@ -28,28 +35,9 @@ class Transaction {
             return StandardTransaction.read(reader);
         }
     }
-
-    toHex() {
-        const writer = new HexWriter();
-        this.write(writer);
-        return writer.result();
-    }
-
-    static fromHex(rawTxHex) {
-        const tx = Transaction.read(new HexReader(rawTxHex));
-        return tx;
-    }
-
-    toBuffer() {
-        const buffer = new Uint8Array(this.byteLength());
-        const writer = new Writer(buffer);
-        this.write(writer);
-        return writer.result();
-    }
-
 }
 
-class StandardTransaction extends Transaction {
+export class StandardTransaction extends Transaction {
 
     constructor(version, inputs, outputs, lockTime = 0) {
         super();
@@ -76,7 +64,7 @@ class StandardTransaction extends Transaction {
 }
 
 
-class SegWitTransaction extends Transaction {
+export class SegWitTransaction extends Transaction {
 
     constructor(version, inputs, outputs, witnesses, lockTime) {
         super();
@@ -344,8 +332,8 @@ class Witness {
 class Signature {
 
     constructor(rValue, sValue, sighashFlag, length) {
-        this.rValue = new Buffer(rValue);
-        this.sValue = new Buffer(sValue);
+        this.rValue = rValue;
+        this.sValue = sValue;
         this.sighashFlag = sighashFlag;
         this.length = length
     }
@@ -355,16 +343,17 @@ class Signature {
         const tag = new Uint8(48); // tag
         tag.write(writer);
 
-        const sequenceLength = new Uint8(this.rValue.byteLength() + this.sValue.byteLength() + 4);
+        const sequenceLength = new Uint8(this.rValue.byteLength + this.sValue.byteLength + 4);
         sequenceLength.write(writer);
 
         writer.writeByte(2); // integerElement1
-        writer.writeByte(this.rValue.byteLength()); // element1Length
-        this.rValue.write(writer);
+        writer.writeByte(this.rValue.byteLength); // element1Length
+        writer.writeBytes(this.rValue);
 
         writer.writeByte(2); // integerElement2
-        writer.writeByte(this.sValue.byteLength()); // element2Length
-        this.sValue.write(writer); // rValue
+        writer.writeByte(this.sValue.byteLength); // element2Length
+        writer.writeBytes(this.sValue);
+        // this.sValue.write(writer); // rValue
         this.sighashFlag.write(writer);
     }
 
@@ -390,10 +379,11 @@ class Signature {
     }
 }
 
-class PublicKey extends Buffer {
+class PublicKey extends SerialBuffer {
 
     constructor(buffer, length) {
-        super(buffer);
+        super()
+        this._buffer;
         this.length = length;
     }
 
@@ -447,14 +437,15 @@ class SighashFlag {
 class Script {
 
     constructor(script, asm, length) {
-        this.script = new Buffer(script);
+        this.script = script;
         this.asm = asm;
         this.length = length;
     }
 
     write(writer) {
         this.length.write(writer);
-        this.script.write(writer);
+        // this.script.write(writer);
+        writer.writeBytes(this.script)
     }
 
     byteLength() {
@@ -464,7 +455,7 @@ class Script {
     static read(reader) {
         const length = VarInt.read(reader);
         const script = reader.readBytes(length);
-        const scriptReader = new Reader(script);
+        const scriptReader = new SerialReader(script);
         const asm = [];
 
         while (!scriptReader.isEmpty()) {

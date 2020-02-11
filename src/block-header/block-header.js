@@ -1,9 +1,11 @@
 import { Uint32, HexReader } from '../../../buffer-js/src/serial-buffer.js'
-import { dSHA256 } from '../../../hash-js/hash.js'
+import { SHA256d } from '../../../hash-js/hash.js'
+import { SerialBuffer, SerialSHA256d } from '../../../buffer-js/src/serial-buffer.js'
 
-export class BlockHeader {
+export class BlockHeader extends SerialBuffer {
 
     constructor(version, hashPrevBlock, hashMerkleRoot, timeStamp, bits, nonce) {
+        super()
         this.version = version;
         this.hashPrevBlock = hashPrevBlock;
         this.hashMerkleRoot = hashMerkleRoot;
@@ -23,8 +25,8 @@ export class BlockHeader {
 
     static read(reader) {
         const version = Uint32.read(reader);
-        const hashPrevBlock = Hash.read(reader);
-        const hashMerkleRoot = Hash.read(reader);
+        const hashPrevBlock = SerialSHA256d.read(reader);
+        const hashMerkleRoot = SerialSHA256d.read(reader);
         const timeStamp = TimeStamp.read(reader);
         const bits = Bits.read(reader);
         const nonce = Uint32.read(reader);
@@ -40,17 +42,9 @@ export class BlockHeader {
             this.nonce.byteLength();
     }
 
-    toBuffer() {
-        const buffer = new Uint8Array(this.byteLength());
-        const writer = new Writer(buffer);
-        this.write(writer);
-        return writer.result();
-    }
-
-    async blockId() {
+    blockId() {
         const txCopy = this.toBuffer();
-        const hash = await dSHA256(txCopy);
-        return new Hash(hash);
+        return SHA256d.hash(txCopy);
     }
 
     async verifyPrev(prevHeader) {
@@ -59,12 +53,8 @@ export class BlockHeader {
     }
 
     async verifyProofOfWork() {
-        const proof = (await this.blockId()).toBigInt();
+        const proof = (await this.blockId()).reverse().toBigInt();  // reverse to fix Satoshi's byte order
         return this.bits.difficulty > proof;
-    }
-
-    static fromHex(hexString){
-    	return BlockHeader.read(new HexReader(hexString))
     }
 }
 

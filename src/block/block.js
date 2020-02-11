@@ -1,3 +1,6 @@
+
+import { SerialSHA256d } from '../../../buffer-js/src/serial-buffer.js'
+
 export class Block {
 	
 	constructor(header, transactions){

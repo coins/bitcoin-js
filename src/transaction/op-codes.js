@@ -1,4 +1,4 @@
-const opcodes = {
+export const opcodes = {
 	// push value
 	OP_FALSE : 0x00,
 	OP_PUSHDATA1 : 0x4c,
