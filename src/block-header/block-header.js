@@ -1,4 +1,4 @@
-import { Uint32, HexReader, SerialBuffer, SerialSHA256d  } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
+import { Uint32, HexReader, SerialBuffer, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
 
 export class BlockHeader extends SerialBuffer {
 
@@ -45,14 +45,19 @@ export class BlockHeader extends SerialBuffer {
         return SerialSHA256d.hash(txCopy);
     }
 
-    async verifyPredecessor(prevHeader) {
-        // TODO: verify the time stamp
+    async verifyPredecessor(prevHeader, medianTime) {
+        if (!this.timeStamp.verifyPredecessor(prevHeader.timeStamp, medianTime))
+            return false;
+        return this.verifyPredecessorId(prevHeader)
+    }
+
+    async verifyPredecessorId(prevHeader) {
         const prevId = await prevHeader.blockId()
         return this.prevBlockId.equals(prevId)
     }
 
     async verifyProofOfWork() {
-        const proof = (await this.blockId()).reverse().toBigInt()  // reverse to fix Satoshi's byte order
+        const proof = (await this.blockId()).reverse().toBigInt() // reverse to fix Satoshi's byte order
         return this.bits.difficulty > proof
     }
 }
@@ -64,13 +69,24 @@ class TimeStamp extends Uint32 {
         this.formatted = new Date(value * 1000);
     }
 
+    /**
+     * A timestamp is accepted as valid 
+     * if it is greater than the median timestamp of previous 11 blocks.
+     */
+    verifyPredecessor(timeStamp, medianTime) {
+        // TODO: verify the time stamp 
+        // (see: https://en.bitcoin.it/wiki/Block_timestamp)
+        return true
+    }
 }
 
 class Bits extends Uint32 {
 
     constructor(bits) {
-        super(bits);
-        this.difficulty = BigInt(bits) * 2n ** (8n * (27n - 3n));
+        super(bits)
     }
 
+    get difficulty() {
+        return BigInt(this) * 2n ** (8n * (27n - 3n))
+    }
 }

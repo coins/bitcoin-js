@@ -21,7 +21,7 @@ Correctly parsed `TX_HEX`:
 	locktime:		00000000
 */
 
-describe('A Transaction', function() {
+describe('A Bitcoin Transaction', function() {
 
     it('can be serialized and deserialized', async function() {
         const tx = Transaction.fromHex(TX_HEX)
