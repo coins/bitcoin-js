@@ -12,13 +12,13 @@ describe('A BlockHeader', function() {
         expect(header.toHex()).toBe(TEST_HEADER_1_HEX);
     })
 
-    it('can compute a blockId', async function() {
+    it('can compute its block id', async function() {
         const header = BlockHeader.fromHex(TEST_HEADER_1_HEX)
         const blockId = await header.blockId()
         expect(blockId.toHex()).toBe(TEST_HEADER_1_HASH_HEX);
     })
 
-    it('can verify a proof of work', async function() {
+    it('can verify its proof of work', async function() {
         const header = BlockHeader.fromHex(TEST_HEADER_1_HEX)
         const proof = await header.verifyProofOfWork()
         expect(proof).toBeTrue();

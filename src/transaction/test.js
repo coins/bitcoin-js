@@ -28,7 +28,7 @@ describe('A Bitcoin Transaction', function() {
         expect(tx.toHex()).toBe(TX_HEX)
     })
 
-    it('can compute its TXID', async function() {
+    it('can compute its transaction id', async function() {
         const tx = Transaction.fromHex(TX_HEX)
         const txid = await tx.id()
         expect(txid.toHex()).toBe(TXID)

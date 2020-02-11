@@ -1,7 +1,7 @@
 
 import { SerialSHA256d } from '../../../buffer-js/src/serial-buffer.js'
 
-export class Block {
+export class Block extends SerialBuffer {
 	
 	constructor(header, transactions){
 		this.header = header;
@@ -16,11 +16,6 @@ export class Block {
 		return isValid;
 	}
 
-	static fromHex(rawTxHex){
-		const tx = Block.read( new HexReader( rawTxHex ) );
-		return tx;
-	}
-
 	write(writer){
 		this.header.write(writer);
 		this.transactions.write(writer);
@@ -32,8 +27,8 @@ export class Block {
 		return new Block(header, transactions);
 	}
 
-	async blockId(){
-		return this.header.blockId();
+	async id(){
+		return this.header.id();
 	}
 
 	byteLength(){

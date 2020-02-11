@@ -57,8 +57,8 @@ export class BlockHeader extends SerialBuffer {
     }
 
     async verifyProofOfWork() {
-        const proof = (await this.blockId()).reverse().toBigInt() // reverse to fix Satoshi's byte order
-        return this.bits.difficulty > proof
+        const hash = (await this.blockId()).reverse().toBigInt() // reverse to fix Satoshi's byte order
+        return hash < this.bits.difficulty
     }
 }
 
@@ -70,8 +70,8 @@ class TimeStamp extends Uint32 {
     }
 
     /**
-     * A timestamp is accepted as valid 
-     * if it is greater than the median timestamp of previous 11 blocks.
+     * A time stamp is accepted as valid 
+     * if it is greater than the median time stamp of previous 11 blocks.
      */
     verifyPredecessor(timeStamp, medianTime) {
         // TODO: verify the time stamp 
