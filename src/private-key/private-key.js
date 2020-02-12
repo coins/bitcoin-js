@@ -52,3 +52,7 @@ export async function decode(stringWIF, network = MAINNET) {
     const privateKey = shortened.slice(1)
     return privateKey.toBigInt()
 }
+
+export async function generate() {
+    return Buffer.randomBytes(32).toHex()
+}

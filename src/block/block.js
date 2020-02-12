@@ -66,14 +66,14 @@ export class Transactions {
 	}
 
 	async merkle(){
-		const transactionHashs = this.transactions.map( tx => tx.txid() );
+		const transactionHashs = this.transactions.map( tx => tx.id() );
 		const set = await Promise.all( transactionHashs );
 		const root = await merkleRoot(set);
 		return root;
 	}
 
 	async merkleProof(index){
-		const transactionHashs = this.transactions.map( tx => tx.txid() );
+		const transactionHashs = this.transactions.map( tx => tx.id() );
 		const set = await Promise.all( transactionHashs );
 		return MerklePath.fromSet(set,index);
 	}

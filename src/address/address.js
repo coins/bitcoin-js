@@ -3,14 +3,15 @@ import { HASH160, SHA256d } from '../../../hash-js/hash.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
 
 
+const MAINNET_VERSION = '00'
+
 /**
  * Generates a P2PKH address
  * P2PKH means "pay to public key hash" 
  * @param {BigInt} privateKey 
  * @return {String} p2pkhAddress 
  */
-const MAINNET = '00'
-export async function privateKeyToP2PKH(privateKey, network = MAINNET) {
+export async function privateKeyToP2PKH(privateKey, network = MAINNET_VERSION) {
     // See: https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses
 
     // 0 - Having a private ECDSA key
@@ -38,7 +39,7 @@ export async function privateKeyToP2PKH(privateKey, network = MAINNET) {
 
     // 8 - Add the 4 checksum bytes from stage 7 at the end of extended RIPEMD-160 hash from stage 4. This is the 25-byte binary Bitcoin Address.
     const addressHex = versioned + checksum.toHex()
-    console.log(addressHex)
+
     // 9 - Convert the result from a byte string into a base58 string using Base58Check encoding. This is the most commonly used Bitcoin Address format
     return Buffer.fromHex(addressHex).toBase58()
 }
