@@ -4,9 +4,9 @@ import { privateKeyToP2PKH } from './address.js'
 describe('A Bitcoin address', function() {
 
     it('can be generated from a private key', async function() {
-        const privateKey = BigInt('0xE9873D79C6D87DC0FB6A5778633389F4453213303DA61F20BD67FC233AA33262')
-        const address = privateKeyToP2PKH(privateKey)
-        expect(address).toBe('1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj')
+        const privateKey = BigInt('0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725')
+        const address = await privateKeyToP2PKH(privateKey)
+        expect(address).toBe('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs')
     })
 
 })
