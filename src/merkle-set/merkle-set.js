@@ -1,5 +1,5 @@
 import { sha256d } from '../../../hash-js/hash.js'
-import * as Buffer from '../../../buffer-js/src/buffer-utils.js'
+import * as Buffer from '../../../buffer-js/src/buffer-utils/buffer-utils.js'
 
 export async function merkleRoot(set) {
     if (set.length == 0)

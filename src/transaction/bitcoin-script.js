@@ -1,6 +1,6 @@
 import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
 import { Buffer } from '../../../buffer-js/src/buffer.js'
-import { byteToHex } from '../../../buffer-js/src/buffer-utils.js'
+import { byteToHex } from '../../../buffer-js/src/buffer-utils/buffer-utils.js'
 import { opcodes } from './op-codes.js'
 
 export class SignatureScript {
