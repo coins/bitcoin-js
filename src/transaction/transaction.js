@@ -60,7 +60,6 @@ export class StandardTransaction extends Transaction {
 
 }
 
-
 export class SegWitTransaction extends Transaction {
 
     constructor(version, inputs, outputs, witnesses, lockTime) {
@@ -205,7 +204,8 @@ class TxOutputs {
     }
 
     byteLength() {
-        return this.outCount.byteLength() + this.outputs.reduce((sum, output) => sum + output.byteLength(), 0);
+        return this.outCount.byteLength() + this.outputs.reduce(
+            (sum, output) => sum + output.byteLength(), 0)
     }
 
     static read(reader) {
@@ -248,7 +248,7 @@ class TxOutput {
     }
 }
 
-class TxValue extends Uint64{
+class TxValue extends Uint64 {
 
     constructor(value) {
         super(value)
@@ -267,11 +267,13 @@ class Witnesses {
     }
 
     write(writer) {
-        this.witnesses.forEach(witness => witness.write(writer));
+        this.witnesses.forEach(
+            witness => witness.write(writer))
     }
 
     byteLength() {
-        return this.witnesses.reduce((sum, witness) => sum + witness.byteLength(), 0);
+        return this.witnesses.reduce(
+            (sum, witness) => sum + witness.byteLength(), 0)
     }
 
     static read(reader) {
