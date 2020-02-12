@@ -8,22 +8,34 @@ export default class PrivateKey {
         this._buffer = buffer
     }
 
-    toAddress() {
-        return Address.privateKeyToP2PKH(this._buffer)
+    toAddress(network) {
+        return Address.privateKeyToP2PKH(this._buffer, network)
     }
 
     toWIF() {
         return WIF.encode(this._buffer)
     }
 
-    static async fromWIF(encoded) {
-        const decoded = await WIF.decode(encoded)
+    static async fromWIF(encoded, network) {
+        const decoded = await WIF.decode(encoded, network)
         return new PrivateKey(decoded)
     }
 
     static generate() {
         const bytes = Buffer.randomBytes(32)
-        return new PrivateKey(bytes.toBigInt())
+        return new this.prototype.constructor(bytes.toBigInt())
+    }
+
+}
+
+export class TestnetPrivateKey extends PrivateKey {
+
+    toAddress() {
+        return super.toAddress('TESTNET')
+    }
+
+    toWIF() {
+        return WIF.encode(this._buffer, 'TESTNET')
     }
 
 }

@@ -2,8 +2,12 @@ import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
 import { HASH160, SHA256d } from '../../../hash-js/hash.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
 
+// See: https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses
 
-const MAINNET_VERSION = '00'
+const VERSION = {
+    'MAINNET': '00',
+    'TESTNET': '6f'
+}
 
 /**
  * Generates a P2PKH address
@@ -11,14 +15,13 @@ const MAINNET_VERSION = '00'
  * @param {BigInt} privateKey 
  * @return {String} p2pkhAddress 
  */
-export async function privateKeyToP2PKH(privateKey, network = MAINNET_VERSION) {
-    // See: https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses
+export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
 
     // 0 - Having a private ECDSA key
 
     // 1 - Take the corresponding public key generated with it 
-    // 		(33 bytes, 1 byte 0x02 (y-coord is even), 
-    // 		and 32 bytes corresponding to X coordinate)
+    //         (33 bytes, 1 byte 0x02 (y-coord is even), 
+    //         and 32 bytes corresponding to X coordinate)
     const publicKey = Secp256k1.publicKey(privateKey)
 
     // 2 - Perform SHA-256 hashing on the public key
@@ -26,7 +29,7 @@ export async function privateKeyToP2PKH(privateKey, network = MAINNET_VERSION) {
     const hash = await HASH160.hash(publicKey)
 
     // 4 - Add version byte in front of RIPEMD-160 hash (0x00 for Main Network)
-    const versioned = network + hash.toHex()
+    const versioned = VERSION[network] + hash.toHex()
 
     // (note that below steps are the Base58Check encoding, which has multiple library options available implementing it)
 

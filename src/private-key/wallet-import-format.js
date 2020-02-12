@@ -3,16 +3,19 @@ import { SHA256d } from '../../../hash-js/hash.js'
 
 // https://en.bitcoin.it/wiki/Wallet_import_format
 
-export const MAINNET = '80'
-export const TESTNET = 'ef'
+export const VERSION = {
+    'MAINNET' : '80',
+    'TESTNET' : 'ef',
+}
 
-export async function encode(bigint, network = MAINNET) {
+
+export async function encode(bigint, network = 'MAINNET') {
     // 1 - Take a private key
     const privateKey = Buffer.fromBigInt(bigint).toHex()
 
     // 2 - Add a 0x80 byte in front of it for mainnet addresses or 0xef for testnet addresses. 
     // Also add a 0x01 byte at the end if the private key will correspond to a compressed public key
-    const extendedKey = network + privateKey // TODO: check network and add '01' for compressed keys 
+    const extendedKey = VERSION[network] + privateKey // TODO: check network and add '01' for compressed keys 
 
     // 3 and 4 - Perform double SHA-256 hash on the extended key
     const hash = await SHA256d.hashHex(extendedKey)
@@ -28,7 +31,7 @@ export async function encode(bigint, network = MAINNET) {
     return Buffer.fromHex(result).toBase58()
 }
 
-export async function decode(stringWIF, network = MAINNET) {
+export async function decode(stringWIF, network = 'MAINNET') {
     // 1 - Take a Wallet Import Format string
 
     // 2 - Convert it to a byte string using Base58Check encoding

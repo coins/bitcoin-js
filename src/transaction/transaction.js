@@ -1,5 +1,5 @@
-import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
-import { Buffer } from '../../../buffer-js/src/buffer.js'
+import { SerialBuffer, VarInt, Uint64, Uint32, Uint8, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
+import { Buffer } from '../../../buffer-js/buffer.js'
 import { PublicKeyScript, SignatureScript, Script } from './bitcoin-script.js'
 
 
@@ -246,6 +246,7 @@ class TxOutput {
         const scriptPubKey = Script.read(reader);
         return new TxOutput(value, scriptPubKey)
     }
+    
 }
 
 class TxValue extends Uint64 {

@@ -8,8 +8,9 @@ describe('A private key', function() {
         const private_key_bigint = BigInt('0x0C28FCA386C7A227600B2FE50B7CAE11EC86D3BF1FBE471BE89827E19D72AA1D')
         const private_key_WIF = '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ'
         const encoded = await WIF.encode(private_key_bigint)
-        expect(encoded).toBe(private_key_WIF)
         const decoded = await WIF.decode(encoded)
+        
+        expect(encoded).toBe(private_key_WIF)
         expect(decoded).toBe(private_key_bigint)
     })
 
