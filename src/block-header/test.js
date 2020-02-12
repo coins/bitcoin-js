@@ -14,7 +14,7 @@ describe('A BlockHeader', function() {
 
     it('can compute its block id', async function() {
         const header = BlockHeader.fromHex(TEST_HEADER_1_HEX)
-        const blockId = await header.blockId()
+        const blockId = await header.id()
         expect(blockId.toHex()).toBe(TEST_HEADER_1_HASH_HEX);
     })
 

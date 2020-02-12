@@ -1,4 +1,4 @@
-import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
+import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
 import { Buffer } from '../../../buffer-js/src/buffer.js'
 import { PublicKeyScript, SignatureScript, Script } from './bitcoin-script.js'
 
@@ -20,17 +20,17 @@ export class Transaction extends SerialBuffer {
     }
 
     static read(reader) {
-        const version = Uint32.read(reader);
-        const marker = VarInt.read(reader);
+        const version = Uint32.read(reader)
+        const marker = VarInt.read(reader)
 
-        reader.meta.version = version;
-        reader.meta.isSegWit = (marker == 0);
+        reader.meta.version = version
+        reader.meta.isSegWit = (marker == 0)
 
         if (reader.meta.isSegWit) {
-            return SegWitTransaction.read(reader);
+            return SegWitTransaction.read(reader)
         } else {
-            reader.meta.inputsLength = marker;
-            return StandardTransaction.read(reader);
+            reader.meta.inputsLength = marker
+            return StandardTransaction.read(reader)
         }
     }
 }
@@ -77,8 +77,7 @@ export class SegWitTransaction extends Transaction {
     async id() {
         const txCopy = new Uint8Array(super.byteLength());
         this.write(new Writer(txCopy, 'TXID'));
-        const hash = await dSHA256(txCopy);
-        return new Hash(hash);
+        return SHA256d(txCopy)
     }
 
     write(writer) {
@@ -249,28 +248,16 @@ class TxOutput {
     }
 }
 
-class TxValue {
+class TxValue extends Uint64{
 
     constructor(value) {
-        this.txValue = new Uint64(value);
+        super(value)
     }
 
     toBitcoins() {
         return Number(this.txValue.value) / 1e8;
     }
 
-    write(writer) {
-        this.txValue.write(writer);
-    }
-
-    byteLength() {
-        return this.txValue.byteLength();
-    }
-
-    static read(reader) {
-        const value = Uint64.read(reader);
-        return new TxValue(value);
-    }
 }
 
 class Witnesses {

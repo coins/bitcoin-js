@@ -77,20 +77,11 @@ export class PublicKeyScript extends SerialBuffer {
     }
 }
 
-export class SighashFlag {
+export class SighashFlag extends Uint8 {
 
     constructor(flag) {
         this.flagRaw = flag;
         this.flag = SighashFlag.toString(flag);
-    }
-
-    write(writer) {
-        this.flagRaw.write(writer);
-    }
-
-    static read(reader) {
-        const flag = Uint8.read(reader)
-        return new SighashFlag(flag)
     }
 
     static get FLAGS() {

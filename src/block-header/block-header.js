@@ -40,7 +40,7 @@ export class BlockHeader extends SerialBuffer {
             this.nonce.byteLength();
     }
 
-    blockId() {
+    id() {
         const txCopy = this.toBuffer();
         return SerialSHA256d.hash(txCopy);
     }
@@ -52,12 +52,12 @@ export class BlockHeader extends SerialBuffer {
     }
 
     async verifyPredecessorId(prevHeader) {
-        const prevId = await prevHeader.blockId()
+        const prevId = await prevHeader.id()
         return this.prevBlockId.equals(prevId)
     }
 
     async verifyProofOfWork() {
-        const hash = (await this.blockId()).reverse().toBigInt() // reverse to fix Satoshi's byte order
+        const hash = (await this.id()).reverse().toBigInt() // reverse to fix Satoshi's byte order
         return hash < this.bits.difficulty
     }
 }
