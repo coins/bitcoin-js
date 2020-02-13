@@ -62,7 +62,8 @@ export class Transactions {
 
 	byteLength(){
 		return this.transactionsCount.byteLength()
-			+ this.transactions.reduce( (sum, transaction) => sum + transaction.byteLength(), 0);
+			+ this.transactions.reduce( 
+				(sum, transaction) => sum + transaction.byteLength(), 0);
 	}
 
 	async merkle(){

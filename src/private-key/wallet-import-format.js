@@ -4,8 +4,8 @@ import { SHA256d } from '../../../hash-js/hash.js'
 // https://en.bitcoin.it/wiki/Wallet_import_format
 
 export const VERSION = {
-    'MAINNET' : '80',
-    'TESTNET' : 'ef',
+    MAINNET : '80',
+    TESTNET : 'ef',
 }
 
 
