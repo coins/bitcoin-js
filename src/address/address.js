@@ -46,3 +46,21 @@ export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
     // 9 - Convert the result from a byte string into a base58 string using Base58Check encoding. This is the most commonly used Bitcoin Address format
     return Buffer.fromHex(addressHex).toBase58()
 }
+
+
+/**
+ * Converts an address into a scriptPubKey.
+ * @param {String} address - The address. 
+ * @return {String} - The scriptPubKey as hex
+ */
+export function addressToScriptPubKey(address) {
+    address = Buffer.fromBase58(address)
+    // Cut off the version byte and the checksum to retrieve the hash
+    const hash = address.slice(1, 21).toHex()
+    const OP_DUP = '76'
+    const OP_HASH160 = 'a9'
+    const OP_PUSH_20 = '14'
+    const OP_EQUALVERIFY = '88'
+    const OP_CHECKSIG = 'ac'
+    return OP_DUP + OP_HASH160 + OP_PUSH_20 + hash + OP_EQUALVERIFY + OP_CHECKSIG
+}

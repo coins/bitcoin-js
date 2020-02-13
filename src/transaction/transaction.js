@@ -1,5 +1,6 @@
 import { SerialBuffer, VarInt, Uint64, Uint32, Uint8, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
+import { addressToScriptPubKey } from '../address/address.js'
 import { PublicKeyScript, SignatureScript, Script } from './bitcoin-script.js'
 
 
@@ -9,14 +10,14 @@ export class Transaction extends SerialBuffer {
         return this.version.byteLength() +
             this.inputs.byteLength() +
             this.outputs.byteLength() +
-            this.lockTime.byteLength();
+            this.lockTime.byteLength()
     }
 
     write(writer) {
-        this.version.write(writer);
-        this.inputs.write(writer);
-        this.outputs.write(writer);
-        this.lockTime.write(writer);
+        this.version.write(writer)
+        this.inputs.write(writer)
+        this.outputs.write(writer)
+        this.lockTime.write(writer)
     }
 
     static read(reader) {
@@ -33,16 +34,27 @@ export class Transaction extends SerialBuffer {
             return StandardTransaction.read(reader)
         }
     }
+
+    addInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence) {
+        const input = new TxInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
+        this.inputs.add(input)
+    }
+
+    addOutput(value, address) {
+        const scriptPubKey = addressToScriptPubKey(address)
+        const output = new TxOutput(value, scriptPubKey)
+        this.outputs.add(output)
+    }
 }
 
 export class StandardTransaction extends Transaction {
 
-    constructor(version, inputs, outputs, lockTime = 0) {
+    constructor(version = 1, inputs, outputs, lockTime = 0) {
         super();
-        this.version = new Uint32(version);
-        this.inputs = inputs;
-        this.outputs = outputs;
-        this.lockTime = new Uint32(lockTime);
+        this.version = new Uint32(version)
+        this.inputs = inputs || new TxInputs()
+        this.outputs = outputs || new TxOutputs()
+        this.lockTime = new Uint32(lockTime)
     }
 
     async id() {
@@ -121,14 +133,14 @@ export class SegWitTransaction extends Transaction {
 
 class TxInputs {
 
-    constructor(inputs) {
-        this.inputs = inputs;
-        this.inCount = new VarInt(inputs.length);
+    constructor(inputs = []) {
+        this.inputs = inputs
+        this.setInCount()
     }
 
     write(writer) {
-        this.inCount.write(writer);
-        this.inputs.forEach(input => input.write(writer));
+        this.inCount.write(writer)
+        this.inputs.forEach(input => input.write(writer))
     }
 
     byteLength() {
@@ -146,23 +158,32 @@ class TxInputs {
         }
         return new TxInputs(inputs);
     }
+
+    add(input) {
+        this.inputs.push(input)
+        this.setInCount()
+    }
+
+    setInCount() {
+        this.inCount = new VarInt(this.inputs.length)
+    }
 }
 
 class TxInput {
 
-    constructor(prevTxOutHash, prevTxOutIndex, scriptSig, sequence = 0xffffffff) {
+    constructor(prevTxOutHash, prevTxOutIndex, scriptSig = '', sequence = 0xffffffff) {
         if (!(prevTxOutHash instanceof SerialSHA256d)) {
-            prevTxOutHash = SerialSHA256d.fromHex(prevTxOutHash);
+            prevTxOutHash = SerialSHA256d.fromHex(prevTxOutHash)
         }
-        this.prevTxOutHash = prevTxOutHash;
-        this.prevTxOutIndex = new Uint32(prevTxOutIndex);
+        this.prevTxOutHash = prevTxOutHash
+        this.prevTxOutIndex = new Uint32(prevTxOutIndex)
 
         if (!(scriptSig instanceof Script)) {
-            scriptSig = Script.fromHex(scriptSig);
+            scriptSig = Script.fromHex(scriptSig)
         }
-        this.scriptSig = scriptSig;
+        this.scriptSig = scriptSig
 
-        this.sequence = new Uint32(sequence); // irrelevant unless transaction's lock_time is > 0
+        this.sequence = new Uint32(sequence) // irrelevant unless transaction's lock_time is > 0
     }
 
     write(writer) {
@@ -189,13 +210,19 @@ class TxInput {
         const sequence = Uint32.read(reader);
         return new TxInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
     }
+
+
 }
 
 class TxOutputs {
 
-    constructor(outputs) {
+    constructor(outputs = []) {
         this.outputs = outputs;
-        this.outCount = new VarInt(outputs.length);
+        this.setOutCount()
+    }
+
+    setOutCount() {
+        this.outCount = new VarInt(this.outputs.length)
     }
 
     write(writer) {
@@ -216,6 +243,11 @@ class TxOutputs {
             outputs.push(output);
         }
         return new TxOutputs(outputs);
+    }
+
+    add(output) {
+        this.outputs.push(output)
+        this.setOutCount()
     }
 }
 
@@ -246,7 +278,7 @@ class TxOutput {
         const scriptPubKey = Script.read(reader);
         return new TxOutput(value, scriptPubKey)
     }
-    
+
 }
 
 class TxValue extends Uint64 {
