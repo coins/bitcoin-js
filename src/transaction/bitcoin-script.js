@@ -1,55 +1,27 @@
-import { SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, SerialSHA256d, HexReader } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
-import { Buffer } from '../../../buffer-js/src/buffer.js'
-import { byteToHex } from '../../../buffer-js/src/buffer-utils/buffer-utils.js'
+import { Buffer, byteToHex, SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, SerialSHA256d, HexReader  } from '../../../buffer-js/src/buffer.js'
 import { opcodes } from './op-codes.js'
+import { BitcoinSignature } from './bitcoin-signature.js'
 
 export class SignatureScript {
 
-    constructor(rValue, sValue, sighashFlag, length) {
-        this.rValue = rValue;
-        this.sValue = sValue;
-        this.sighashFlag = sighashFlag;
-        this.length = length
+    constructor(bitcoinSignature, scriptLength) {
+        this.bitcoinSignature = bitcoinSignature
+        this.scriptLength = scriptLength
     }
 
     write(writer) {
-        this.length.write(writer);
-        const tag = new Uint8(48); // tag
-        tag.write(writer);
-
-        const sequenceLength = new Uint8(this.rValue.byteLength + this.sValue.byteLength + 4);
-        sequenceLength.write(writer);
-
-        writer.writeByte(2); // integerElement1
-        writer.writeByte(this.rValue.byteLength); // element1Length
-        writer.writeBytes(this.rValue);
-
-        writer.writeByte(2); // integerElement2
-        writer.writeByte(this.sValue.byteLength); // element2Length
-        writer.writeBytes(this.sValue);
-        // this.sValue.write(writer); // rValue
-        this.sighashFlag.write(writer);
+        this.scriptLength.write(writer)
+        this.bitcoinSignature.write(writer)
     }
 
     byteLength() {
-        return this.length + this.length.byteLength();
+        return this.bitcoinSignature.byteLength() + this.scriptLength.byteLength()
     }
 
     static read(reader) {
-        // SignatureScripts use DER encoding 
-        const length = Uint8.read(reader);
-        const tag = Uint8.read(reader);
-        const sequenceLength = Uint8.read(reader);
-        const integerElement1 = Uint8.read(reader);
-        const elementLength1 = Uint8.read(reader);
-        const rValue = reader.readBytes(elementLength1);
-
-        const integerElement2 = Uint8.read(reader);
-        const elementLength2 = Uint8.read(reader);
-        const sValue = reader.readBytes(elementLength2);
-        const sighashFlag = SighashFlag.read(reader);
-
-        return new SignatureScript(rValue, sValue, sighashFlag, length);
+        const scriptLength = Uint8.read(reader)
+        const bitcoinSignature = BitcoinSignature.read(reader)
+        return new SignatureScript(bitcoinSignature, scriptLength)
     }
 }
 
@@ -57,58 +29,36 @@ export class PublicKeyScript extends SerialBuffer {
 
     constructor(buffer, length) {
         super()
-        this._buffer;
-        this.length = length;
+        this.buffer = buffer
+        this.length = length
     }
 
     write(writer) {
-        this.length.write(writer);
-        writer.writeBytes(this._buffer);
+        this.length.write(writer)
+        writer.writeBytes(this._buffer)
     }
 
     byteLength() {
-        return this.length + this.length.byteLength();
+        return this.length + this.length.byteLength()
     }
 
     static read(reader) {
-        const length = VarInt.read(reader);
-        const compressed = reader.readBytes(length);
+        const length = VarInt.read(reader)
+        const compressed = reader.readBytes(length)
         return new PublicKeyScript(compressed, length)
     }
-}
-
-export class SighashFlag extends Uint8 {
-
-    constructor(flag) {
-        this.flagRaw = flag;
-        this.flag = SighashFlag.toString(flag);
-    }
-
-    static get FLAGS() {
-        return {
-            SIGHASH_ALL: 1,
-            SIGHASH_NONE: 2,
-            SIGHASH_SINGLE: 3,
-            SIGHASH_ANYONECANPAY: 0x80,
-        }
-    }
-
-    static toString(sighashFlag) {
-        return Object.keys(SighashFlag.FLAGS).filter(key => SighashFlag.FLAGS[key] == sighashFlag)[0]
-    }
-
 }
 
 export class Script {
 
     constructor(script, asm, length) {
-        this.script = script;
-        this.asm = asm;
-        this.length = length;
+        this.script = script
+        this.asm = asm
+        this.length = length
     }
 
     write(writer) {
-        this.length.write(writer);
+        this.length.write(writer)
         // this.script.write(writer);
         writer.writeBytes(this.script)
     }
