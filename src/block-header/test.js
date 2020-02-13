@@ -27,7 +27,8 @@ describe('A BlockHeader', function() {
     it('can verify its predecessor', async function() {
         const header_1 = BlockHeader.fromHex(TEST_HEADER_1_HEX)
         const header_2 = BlockHeader.fromHex(TEST_HEADER_2_HEX)
-        const proof = await header_2.verifyPredecessor(header_1)
+        const currMedianTime = 0
+        const proof = await header_2.verifyPredecessor(header_1, currMedianTime)
         expect(proof).toBeTrue();
     })
 
