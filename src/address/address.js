@@ -2,9 +2,11 @@ import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
 import { HASH160, SHA256d } from '../../../hash-js/hash.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
 
-// See: https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses
 
-const VERSION = {
+/**
+* The version byte to denote an address' network
+*/
+const NETWORK_VERSION = {
     'MAINNET': '00',
     'TESTNET': '6f'
 }
@@ -14,11 +16,11 @@ const VERSION = {
  * P2PKH means "pay to public key hash" 
  * @param {BigInt} privateKey 
  * @return {String} p2pkhAddress 
+ * @see https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses
  */
 export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
 
     // 0 - Having a private ECDSA key
-
     // 1 - Take the corresponding public key generated with it 
     //         (33 bytes, 1 byte 0x02 (y-coord is even), 
     //         and 32 bytes corresponding to X coordinate)
@@ -29,7 +31,7 @@ export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
     const hash = await HASH160.hash(publicKey)
 
     // 4 - Add version byte in front of RIPEMD-160 hash (0x00 for Main Network)
-    const versioned = VERSION[network] + hash.toHex()
+    const versioned = NETWORK_VERSION[network] + hash.toHex()
 
     // (note that below steps are the Base58Check encoding, which has multiple library options available implementing it)
 
@@ -50,13 +52,14 @@ export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
 
 /**
  * Converts an address into a scriptPubKey.
- * @param {String} address - The address. 
- * @return {String} - The scriptPubKey as hex
+ * @param {String} address - The address base58 encoded. 
+ * @return {String} - The scriptPubKey hex encoded.
  */
 export function addressToScriptPubKey(address) {
-    address = Buffer.fromBase58(address)
+    const addressBytes = Buffer.fromBase58(address)
+    const version = addressBytes.slice(0, 1).toHex()
     // Cut off the version byte and the checksum to retrieve the hash
-    const hash = address.slice(1, 21).toHex()
+    const hash = addressBytes.slice(1, 21).toHex()
     const OP_DUP = '76'
     const OP_HASH160 = 'a9'
     const OP_PUSH_20 = '14'
@@ -64,3 +67,4 @@ export function addressToScriptPubKey(address) {
     const OP_CHECKSIG = 'ac'
     return OP_DUP + OP_HASH160 + OP_PUSH_20 + hash + OP_EQUALVERIFY + OP_CHECKSIG
 }
+
