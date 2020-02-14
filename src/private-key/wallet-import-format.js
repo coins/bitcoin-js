@@ -17,13 +17,15 @@ export const NETWORK_VERSION = {
 }
 
 /**
- * @param  {BigInt} - The private key as BigInt.
- * @param  {String} - The private key's network.
- * @return {Promise<String>} - The WIF encoded private key.
+ * Encode a private key in the Wallet Import Format.
+ * 
+ * @param  {BigInt} privateKey - The private key as BigInt.
+ * @param  {string?} network - The private key's network.
+ * @return {Promise<string>} - The WIF encoded private key.
  */
-export async function encode(bigint, network = 'MAINNET') {
+export async function encode(privateKey, network = 'MAINNET') {
     // 1 - Take a private key
-    const privateKey = Buffer.fromBigInt(bigint).toHex()
+    privateKey = Buffer.fromBigInt(privateKey).toHex()
 
     // 2 - Add a 0x80 byte in front of it for mainnet addresses or 0xef for testnet addresses. 
     // Also add a 0x01 byte at the end if the private key will correspond to a compressed public key
@@ -44,8 +46,10 @@ export async function encode(bigint, network = 'MAINNET') {
 }
 
 /**
- * @param  {String} - The WIF encoded private key.
- * @param  {String} - The private key's network.
+ * Decode a private key from the Wallet Import Format.
+ * 
+ * @param  {string} stringWIF - The WIF encoded private key.
+ * @param  {string?} network - The private key's network.
  * @return {Promise<BigInt>} - The private key as BigInt.
  */
 export async function decode(stringWIF, network = 'MAINNET') {

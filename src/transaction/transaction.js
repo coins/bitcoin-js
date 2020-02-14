@@ -40,10 +40,20 @@ export class Transaction extends SerialBuffer {
         this.inputs.add(input)
     }
 
+    addWitness(inputIndex, publicKey, signature) {
+        this.inputs.inputs[inputIndex]
+        input.scriptSig.add(publicKey)
+        input.scriptSig.add(signature)
+    }
+
     addOutput(value, address) {
         const scriptPubKey = addressToScriptPubKey(address)
         const output = new TxOutput(value, scriptPubKey)
         this.outputs.add(output)
+    }
+
+    copyToSign(sigHashFlag) {
+
     }
 }
 
@@ -210,7 +220,6 @@ class TxInput {
         const sequence = Uint32.read(reader);
         return new TxInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
     }
-
 
 }
 
