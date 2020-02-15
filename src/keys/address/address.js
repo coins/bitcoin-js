@@ -6,9 +6,9 @@
  * 
  */
 
-import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
-import { HASH160, SHA256d } from '../../../hash-js/hash.js'
-import { Buffer } from '../../../buffer-js/buffer.js'
+import { Secp256k1 } from '../../../../elliptic-js/src/secp256k1/secp256k1.js'
+import { HASH160, SHA256d } from '../../../../hash-js/hash.js'
+import { Buffer } from '../../../../buffer-js/buffer.js'
 
 
 /**

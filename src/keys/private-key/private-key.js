@@ -1,9 +1,10 @@
-import * as WIF from './wallet-import-format.js'
+
+import { Buffer } from '../../../../buffer-js/buffer.js'
+import * as ECDSA from '../../../../elliptic-js/src/signatures/ecdsa-signature.js'
+import { Secp256k1 } from '../../../../elliptic-js/src/secp256k1/secp256k1.js'
+import * as WIF from '../wallet-import-format/wallet-import-format.js'
 import * as Address from '../address/address.js'
-import { Buffer } from '../../../buffer-js/buffer.js'
-import * as ECDSA from '../../../elliptic-js/src/signatures/ecdsa-signature.js'
-import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
-import { BitcoinSignature } from './bitcoin-signature.js'
+import { BitcoinSignature } from '../bitcoin-signature/bitcoin-signature.js'
 
 /**
  * 
@@ -23,10 +24,14 @@ const PRIVATE = Symbol('private-class-members')
  */
 export class PrivateKey {
 
+
     /**
      * @param  {BigInt} private key - The private key.
      */
     constructor(privateKey) {
+        /**
+         * @type BigInt privateKey - The raw private key in BigInt format.
+         */
         this[PRIVATE] = {
             privateKey: privateKey
         }
@@ -97,7 +102,7 @@ export class PrivateKey {
         txCopy = Buffer.fromHex(txCopy + '01') // TODO: care for sighashflag somewhere else
         const signatureDER = await ECDSA.sign(txCopy, this[PRIVATE].privateKey)
         const bitcoinSignature = new BitcoinSignature(signatureDER, sigHashFlag)
-        transaction.addWitness(inputIndex, this.publicKey, bitcoinSignature)
+        transaction.inputs.addWitness(inputIndex, this.publicKey, bitcoinSignature)
         return transaction
     }
 }

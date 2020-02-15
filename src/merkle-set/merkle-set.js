@@ -1,6 +1,12 @@
 import { sha256d } from '../../../hash-js/hash.js'
 import * as Buffer from '../../../buffer-js/src/buffer-utils/buffer-utils.js'
 
+/**
+ * Compute the Merkle root of a set.
+ * 
+ * @param  {ArrayBuffer[]} set - The set to hash.
+ * @return {Promise<ArrayBuffer>}
+ */
 export async function merkleRoot(set) {
     if (set.length == 0)
         return
@@ -18,6 +24,13 @@ export async function merkleRoot(set) {
     return merkleRoot(next);
 }
 
+/**
+ * Compute a Merkle inclusion proof of an element within a set.
+ * 
+ * @param  {ArrayBuffer[]} set - The set in which the element is included.
+ * @param  {number} index - The index of the element to prove inclusion for.
+ * @return {Promise<ArrayBuffer>}
+ */
 export async function merklePath(set, index) {
     if (set.length == 0)
         return;
@@ -39,9 +52,9 @@ export async function merklePath(set, index) {
         hash: set [siblingIndex]
     };
 
-    const nextIndex = Math.floor(index / 2);
-    const path = await merklePath(next, nextIndex);
-    path.push(sibling);
+    const nextIndex = Math.floor(index / 2)
+    const path = await merklePath(next, nextIndex)
+    path.push(sibling)
 
-    return path;
+    return path
 }

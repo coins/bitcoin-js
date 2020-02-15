@@ -1,7 +1,11 @@
-import { SerialBuffer, Uint8 } from '../../../buffer-js/src/buffer.js'
-import { SignatureDER } from '../../../elliptic-js/src/signature-DER/signature-DER.js'
+import { SerialBuffer, Uint8 } from '../../../../buffer-js/src/buffer.js'
+import { SignatureDER } from '../../../../elliptic-js/src/signature-DER/signature-DER.js'
 
 export class BitcoinSignature extends SerialBuffer {
+
+    signatureDER = null
+
+    sighashFlag = null
 
     constructor(signatureDER, sighashFlag) {
         super()
@@ -51,7 +55,7 @@ export class SighashFlag extends Uint8 {
             SIGHASH_ALL: 1,
             SIGHASH_NONE: 2,
             SIGHASH_SINGLE: 3,
-            SIGHASH_ANYONECANPAY: 0x80,
+            SIGHASH_ANYONECANPAY: 128, // = 0x80
         }
     }
 
@@ -63,4 +67,22 @@ export class SighashFlag extends Uint8 {
     static isValidFlag(flag) {
         return !!SighashFlag.FLAGS[flag]
     }
+
+
+    static get SIGHASH_ALL() {
+        return new SighashFlag(1)
+    }
+
+    static get SIGHASH_NONE() {
+        return new SighashFlag(2)
+    }
+
+    static get SIGHASH_SINGLE() {
+        return new SighashFlag(3)
+    }
+
+    static get SIGHASH_ANYONECANPAY() {
+        return new SighashFlag(128)
+    }
+
 }

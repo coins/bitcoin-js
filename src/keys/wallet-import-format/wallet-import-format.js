@@ -4,8 +4,8 @@
  * @see https://en.bitcoin.it/wiki/Wallet_import_format
  */
 
-import { Buffer } from '../../../buffer-js/buffer.js'
-import { SHA256d } from '../../../hash-js/hash.js'
+import { Buffer } from '../../../../buffer-js/buffer.js'
+import { SHA256d } from '../../../../hash-js/hash.js'
 
 
 /**

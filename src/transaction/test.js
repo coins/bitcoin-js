@@ -1,5 +1,5 @@
 import { Transaction } from './transaction.js'
-import * as Address from '../address/address.js'
+import * as Address from '../keys/address/address.js'
 /*
     @see https://github.com/bitcoin/bitcoin/blob/master/src/test/data/tx_valid.json
     @see https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/fixtures/transaction.json
