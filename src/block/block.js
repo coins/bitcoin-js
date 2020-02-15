@@ -1,5 +1,4 @@
-
-import { SerialSHA256d } from '../../../buffer-js/src/serial-buffer.js'
+import { SerialSHA256d } from '../../../hash-js/hash.js'
 
 export class Block extends SerialBuffer {
 	

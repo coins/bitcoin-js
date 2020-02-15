@@ -1,6 +1,8 @@
-import { Buffer, byteToHex, SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, SerialSHA256d, HexReader  } from '../../../buffer-js/src/buffer.js'
+import { Buffer, byteToHex, SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, HexReader, concat } from '../../../buffer-js/src/buffer.js'
 import { opcodes } from './op-codes.js'
 import { BitcoinSignature } from './bitcoin-signature.js'
+import { SerialSHA256d } from '../../../hash-js/hash.js'
+
 
 export class SignatureScript {
 
@@ -58,9 +60,17 @@ export class Script {
     }
 
     write(writer) {
+        this.length = new VarInt(this.script.byteLength)
         this.length.write(writer)
         // this.script.write(writer);
         writer.writeBytes(this.script)
+    }
+
+    add(script) {
+        const length = script.byteLength || script.size()
+        this.script = concat(this.script, Buffer.fromBigInt(BigInt(76)))
+        this.script = concat(this.script, Buffer.fromBigInt(BigInt(length)))
+        this.script = concat(this.script, script)
     }
 
     byteLength() {

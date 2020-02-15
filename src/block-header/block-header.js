@@ -1,4 +1,5 @@
-import { Uint32, HexReader, SerialBuffer, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
+import { Uint32, HexReader, SerialBuffer } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
+import { SerialSHA256d } from '../../../hash-js/hash.js'
 
 /**
  * A Bitcoin block header
@@ -7,12 +8,12 @@ export class BlockHeader extends SerialBuffer {
 
     /**
      * Creates a new BlockHeader
-     * @param  {Uint32}
-     * @param  {SerialSHA256d}
-     * @param  {SerialSHA256d}
-     * @param  {TimeStamp}
-     * @param  {DifficultyBits}
-     * @param  {Uint32}
+     * @param  {Uint32}            version 
+     * @param  {SerialSHA256d}     prevBlockId
+     * @param  {SerialSHA256d}     merkleRoot
+     * @param  {TimeStamp}         timeStamp
+     * @param  {DifficultyBits}    bits
+     * @param  {Uint32}            nonce
      */
     constructor(version, prevBlockId, merkleRoot, timeStamp, bits, nonce) {
         super()

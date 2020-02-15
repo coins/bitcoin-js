@@ -4,12 +4,11 @@ import { Buffer } from '../../../buffer-js/buffer.js'
 import * as ECDSA from '../../../elliptic-js/src/signatures/ecdsa-signature.js'
 import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
 
-/**
- * Symbol to protect private class members.
- * @type {Symbol} - The private symbol.
- */
-const PRIVATE = Symbol('PRIVATE')
 
+
+/**
+ * Class to represent private keys
+ */
 export class PrivateKey {
 
     constructor(privateKey) {
@@ -75,6 +74,10 @@ export class PrivateKey {
         return transaction
     }
 
+    /**
+     * The corresponding public key.
+     * @return {Buffer}
+     */
     get publicKey() {
         return Secp256k1.publicKey(this[PRIVATE].privateKey)
     }
@@ -103,3 +106,9 @@ export class TestnetPrivateKey extends PrivateKey {
         return super.import(encoded, 'TESTNET')
     }
 }
+
+/**
+ * Symbol to protect private class members from being accessed.
+ * @type {Symbol} - The private symbol.
+ */
+const PRIVATE = Symbol('private-class-members')

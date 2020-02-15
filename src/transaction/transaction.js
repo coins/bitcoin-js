@@ -1,11 +1,13 @@
-import { SerialBuffer, VarInt, Uint64, Uint32, Uint8, SerialSHA256d } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
+import { SerialBuffer, VarInt, Uint64, Uint32, Uint8 } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
 import { addressToScriptPubKey } from '../address/address.js'
 import { PublicKeyScript, SignatureScript, Script } from './bitcoin-script.js'
-
+import { SerialSHA256d } from '../../../hash-js/hash.js'
 
 export class Transaction extends SerialBuffer {
 
+    // TODO: make fields of class explicit
+    
     byteLength() {
         return this.version.byteLength() +
             this.inputs.byteLength() +
@@ -41,9 +43,9 @@ export class Transaction extends SerialBuffer {
     }
 
     addWitness(inputIndex, publicKey, signature) {
-        this.inputs.inputs[inputIndex]
+        const input = this.inputs.inputs[inputIndex]
+        input.scriptSig.add(signature.toBuffer())
         input.scriptSig.add(publicKey)
-        input.scriptSig.add(signature)
     }
 
     addOutput(value, address) {
@@ -61,6 +63,7 @@ export class StandardTransaction extends Transaction {
 
     constructor(version = 1, inputs, outputs, lockTime = 0) {
         super();
+        // TODO: this should be private fields
         this.version = new Uint32(version)
         this.inputs = inputs || new TxInputs()
         this.outputs = outputs || new TxOutputs()
@@ -179,11 +182,11 @@ class TxInputs {
     }
 }
 
-class TxInput {
+class TxInput { 
 
     constructor(prevTxOutHash, prevTxOutIndex, scriptSig = '', sequence = 0xffffffff) {
         if (!(prevTxOutHash instanceof SerialSHA256d)) {
-            prevTxOutHash = SerialSHA256d.fromHex(prevTxOutHash)
+            prevTxOutHash = SerialSHA256d.fromHex(prevTxOutHash).reverse() // reverse to fix satoshi's byte order
         }
         this.prevTxOutHash = prevTxOutHash
         this.prevTxOutIndex = new Uint32(prevTxOutIndex)
@@ -291,10 +294,6 @@ class TxOutput {
 }
 
 class TxValue extends Uint64 {
-
-    constructor(value) {
-        super(value)
-    }
 
     toBitcoins() {
         return Number(this.txValue.value) / 1e8;

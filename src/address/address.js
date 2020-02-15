@@ -33,6 +33,7 @@ export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
     // 4 - Add version byte in front of RIPEMD-160 hash (0x00 for Main Network)
     const versioned = NETWORK_VERSION[network] + hash.toHex()
 
+
     // (note that below steps are the Base58Check encoding, which has multiple library options available implementing it)
 
     // 5 - Perform SHA-256 hash on the extended RIPEMD-160 result
@@ -58,8 +59,11 @@ export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
 export function addressToScriptPubKey(address) {
     const addressBytes = Buffer.fromBase58(address)
     const version = addressBytes.slice(0, 1).toHex()
-    // Cut off the version byte and the checksum to retrieve the hash
+
+    // Cut off the version byte and the checksum to retrieve the hash.
     const hash = addressBytes.slice(1, 21).toHex()
+
+    // Add opcodes.
     const OP_DUP = '76'
     const OP_HASH160 = 'a9'
     const OP_PUSH_20 = '14'
