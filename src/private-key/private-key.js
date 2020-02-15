@@ -3,7 +3,7 @@ import * as Address from '../address/address.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
 import * as ECDSA from '../../../elliptic-js/src/signatures/ecdsa-signature.js'
 import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
-
+import { BitcoinSignature } from './bitcoin-signature.js'
 
 /**
  * Class to represent private keys
@@ -66,10 +66,14 @@ export class PrivateKey {
      * @return {Transaction} - the signed transaction.
      */
     async sign(transaction, inputIndex, sigHashFlag = 1) {
-        let txCopy = new Buffer(transaction.toBuffer())
-        txCopy = Buffer.fromHex(txCopy.toHex() + '01') // TODO: care for sighashflag somewhere else
-        const signature = await ECDSA.sign(txCopy, this[PRIVATE].privateKey)
-        transaction.addWitness(inputIndex, this.publicKey, signature)
+        const address = await this.toAddress()
+        const publicKeyScript = Address.addressToScriptPubKey(address)
+        let txCopy = transaction.sigHashCopy(inputIndex, sigHashFlag, publicKeyScript)
+        console.log('copy', txCopy)
+        txCopy = Buffer.fromHex(txCopy + '01') // TODO: care for sighashflag somewhere else
+        const signatureDER = await ECDSA.sign(txCopy, this[PRIVATE].privateKey)
+        const bitcoinSignature = new BitcoinSignature(signatureDER, sigHashFlag)
+        transaction.addWitness(inputIndex, this.publicKey, bitcoinSignature)
         return transaction
     }
 

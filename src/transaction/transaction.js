@@ -1,4 +1,4 @@
-import { Buffer, SerialBuffer, VarInt, Uint64, Uint32, Uint8 } from '../../../buffer-js/buffer.js'
+import { Buffer, SerialBuffer, VarInt, Uint64, Uint32, Uint8, SerialReader } from '../../../buffer-js/buffer.js'
 import { SerialSHA256d } from '../../../hash-js/hash.js'
 import { addressToScriptPubKey } from '../address/address.js'
 import { PublicKeyScript, SignatureScript, Script } from './bitcoin-script.js'
@@ -7,6 +7,9 @@ export class Transaction extends SerialBuffer {
 
     // TODO: make fields of class explicit
 
+    /**
+     * @override
+     */
     byteLength() {
         return this.version.byteLength() +
             this.inputs.byteLength() +
@@ -14,6 +17,9 @@ export class Transaction extends SerialBuffer {
             this.lockTime.byteLength()
     }
 
+    /**
+     * @override
+     */
     write(writer) {
         this.version.write(writer)
         this.inputs.write(writer)
@@ -21,6 +27,14 @@ export class Transaction extends SerialBuffer {
         this.lockTime.write(writer)
     }
 
+    /**
+     * 
+     * Read bytes from a reader.
+     * 
+     * @param {Reader} reader - the Reader to read from.
+     * @return {Transaction}
+     * @override
+     */
     static read(reader) {
         const version = Uint32.read(reader)
         const marker = VarInt.read(reader)
@@ -36,34 +50,66 @@ export class Transaction extends SerialBuffer {
         }
     }
 
-    addInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence) {
+    /**
+     * 
+     * Add an input to spend in this transaction.
+     * 
+     * @param {string} prevTxOutHash - hash of the transaction that created the input.
+     * @param {number} prevTxOutIndex - Output index within the transaction that created the input.
+     * @param {string} scriptSig - The signature script to unlock the input.
+     * @param {number?} sequence - The sequence number.
+     */
+    addInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence = 0xffffffff) {
         const input = TxInput.fromHex(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
         this.inputs.add(input)
     }
 
+    /**
+     * 
+     * Add a witness to unlock an input.
+     * 
+     * @param {number} inputIndex - 
+     * @param {Buffer} publicKey - The public key which corresponds to the input's address.
+     * @param {BitcoinSignature} signature - The signature unlocking the input.
+     */
     addWitness(inputIndex, publicKey, signature) {
         const input = this.inputs.inputs[inputIndex]
         input.scriptSig.add(signature.toBuffer())
         input.scriptSig.add(publicKey)
     }
 
+    /**
+     *
+     * Add an output to this transaction.
+     * 
+     * @param {number} value - The output's value.
+     * @param {string} address - The output's address.
+     */
     addOutput(value, address) {
         const scriptPubKey = addressToScriptPubKey(address)
-        const output = new TxOutput(value, scriptPubKey)
+        const output = TxOutput.fromHex(value, scriptPubKey)
         this.outputs.add(output)
     }
+    
+    sigHashCopy(inputIndex, sigHashFlag, publicKeyScript) {
+        const txCopy = this.copy()
+        txCopy.inputs.inputs.forEach(input => input.setEmptyScript())
+        txCopy.inputs.setScript(inputIndex, Script.fromHex(publicKeyScript))
+        const hex = txCopy.toHex()
+        return hex
+    }
 
-    copyToSign(sigHashFlag) {
-
+    copy() {
+        return Transaction.read(new SerialReader(this.toBuffer()))
     }
 }
 
 export class StandardTransaction extends Transaction {
 
-    constructor(version = 1, inputs, outputs, lockTime = 0) {
+    constructor(version, inputs, outputs, lockTime = 0) {
         super()
         // TODO: this should be private fields
-        this.version = new Uint32(version)
+        this.version = version || new Uint32(1)
         this.inputs = inputs || new TxInputs()
         this.outputs = outputs || new TxOutputs()
         this.lockTime = new Uint32(lockTime)
@@ -84,6 +130,7 @@ export class StandardTransaction extends Transaction {
 
 }
 
+
 export class SegWitTransaction extends Transaction {
 
     constructor(version, inputs, outputs, witnesses, lockTime) {
@@ -98,8 +145,7 @@ export class SegWitTransaction extends Transaction {
     }
 
     async id() {
-        const txCopy = new Uint8Array(super.byteLength())
-        this.write(new Writer(txCopy, 'TXID'))
+        const txCopy = this.toBuffer()
         return SHA256d(txCopy)
     }
 
@@ -179,6 +225,10 @@ class TxInputs {
     setInCount() {
         this.inCount = new VarInt(this.inputs.length)
     }
+
+    setScript(inputIndex, publicKeyScript) {
+        this.inputs[inputIndex].scriptSig = publicKeyScript
+    }
 }
 
 class TxInput {
@@ -211,6 +261,10 @@ class TxInput {
             this.prevTxOutIndex.byteLength() +
             this.scriptSig.byteLength() +
             this.sequence.byteLength();
+    }
+
+    setEmptyScript() {
+        this.scriptSig = Script.fromHex('')
     }
 
     static read(reader) {
@@ -263,14 +317,14 @@ class TxOutputs {
 class TxOutput {
 
     constructor(value, scriptPubKey) {
-        if (!(value instanceof TxValue)) {
-            value = new TxValue(value)
-        }
         this.value = value
-        if (!(scriptPubKey instanceof Script)) {
-            scriptPubKey = Script.fromHex(scriptPubKey)
-        }
         this.scriptPubKey = scriptPubKey
+    }
+
+    static fromHex(value, scriptPubKeyHex) {
+        const txValue = new TxValue(value)
+        const scriptPubKey = Script.fromHex(scriptPubKeyHex)
+        return new TxOutput(txValue, scriptPubKey)
     }
 
     write(writer) {

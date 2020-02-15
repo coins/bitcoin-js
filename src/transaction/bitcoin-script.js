@@ -1,6 +1,6 @@
 import { Buffer, byteToHex, SerialBuffer, Uint64, Uint32, VarInt, Uint8, SerialReader, HexReader, concat } from '../../../buffer-js/src/buffer.js'
 import { opcodes } from './op-codes.js'
-import { BitcoinSignature } from './bitcoin-signature.js'
+import { BitcoinSignature } from '../private-key/bitcoin-signature.js'
 import { SerialSHA256d } from '../../../hash-js/hash.js'
 
 

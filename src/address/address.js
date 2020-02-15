@@ -1,3 +1,11 @@
+/**
+ * 
+ * Bitcoin Addresses
+ * 
+ * @see https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses
+ * 
+ */
+
 import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
 import { HASH160, SHA256d } from '../../../hash-js/hash.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
@@ -12,11 +20,13 @@ const NETWORK_VERSION = {
 }
 
 /**
- * Generates a P2PKH address
+ * Generates a P2PKH address from a private key
  * P2PKH means "pay to public key hash" 
+ * 
  * @param {BigInt} privateKey 
- * @return {String} p2pkhAddress 
- * @see https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses
+ * @param {string?} network
+ * @return {Promise<Buffer>} - the p2pkhAddress 
+ * 
  */
 export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
 
@@ -25,6 +35,22 @@ export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
     //         (33 bytes, 1 byte 0x02 (y-coord is even), 
     //         and 32 bytes corresponding to X coordinate)
     const publicKey = Secp256k1.publicKey(privateKey)
+
+    // See below ...
+    return publicKeyToP2PKH(publicKey, network)
+}
+
+
+
+/**
+ * Generates a P2PKH address from a public key
+ * P2PKH means "pay to public key hash" 
+ * 
+ * @param {Buffer} publicKey - the compressed public key
+ * @return {Promise<Buffer>} - the p2pkhAddress 
+ * 
+ */
+export async function publicKeyToP2PKH(publicKey, network = 'MAINNET') {
 
     // 2 - Perform SHA-256 hashing on the public key
     // 3 - Perform RIPEMD-160 hashing on the result of SHA-256
@@ -70,5 +96,14 @@ export function addressToScriptPubKey(address) {
     const OP_EQUALVERIFY = '88'
     const OP_CHECKSIG = 'ac'
     return OP_DUP + OP_HASH160 + OP_PUSH_20 + hash + OP_EQUALVERIFY + OP_CHECKSIG
+}
+
+
+
+
+export async function fromPublicKeyHex(publicKeyHex, network = 'MAINNET'){
+    const publicKey = Buffer.fromHex(publicKeyHex)
+    const address = await publicKeyToP2PKH(publicKey, network)
+    return addressToScriptPubKey(address)
 }
 

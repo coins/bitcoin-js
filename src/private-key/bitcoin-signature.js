@@ -6,7 +6,7 @@ export class BitcoinSignature extends SerialBuffer {
     constructor(signatureDER, sighashFlag) {
         super()
         this.signatureDER = signatureDER
-        this.sighashFlag = sighashFlag
+        this.sighashFlag = new SighashFlag(sighashFlag)
     }
 
     /**
@@ -21,7 +21,7 @@ export class BitcoinSignature extends SerialBuffer {
      * @override
      */
     byteLength() {
-        return this.signatureDER.byteLength() + sighashFlag.byteLength()
+        return this.signatureDER.byteLength() + this.sighashFlag.byteLength()
     }
 
     /**
@@ -30,11 +30,21 @@ export class BitcoinSignature extends SerialBuffer {
     static read(reader) {
         const signatureDER = SignatureDER.read(reader)
         const sighashFlag = SigHashFlag.read(reader)
-        return new SignatureDER(signatureDER, sighashFlag)
+        return new BitcoinSignature(signatureDER, sighashFlag)
     }
 }
 
 export class SighashFlag extends Uint8 {
+
+    constructor(flag) {
+        // if (!SighashFlag.isValidFlag(flag))
+        //     throw Error(`${flag} is not a valid signature hash flag`)
+        super(flag)
+    }
+
+    toString() {
+        return SighashFlag.toString(this)
+    }
 
     static get FLAGS() {
         return {
@@ -45,12 +55,12 @@ export class SighashFlag extends Uint8 {
         }
     }
 
-    toString() {
-        return SighashFlag.toString(this)
-    }
-
     static toString(sighashFlag) {
-        return Object.keys(SighashFlag.FLAGS).filter(key => SighashFlag.FLAGS[key] == sighashFlag)[0]
+        return Object.keys(SighashFlag.FLAGS).filter(
+            key => SighashFlag.FLAGS[key] == sighashFlag)[0]
     }
 
+    static isValidFlag(flag) {
+        return !!SighashFlag.FLAGS[flag]
+    }
 }
