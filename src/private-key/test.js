@@ -1,5 +1,5 @@
 import * as WIF from './wallet-import-format.js'
-import PrivateKey from './private-key.js'
+import {PrivateKey} from './private-key.js'
 
 // Test vectors from: https://en.bitcoin.it/wiki/Private_key
 describe('A private key', function() {

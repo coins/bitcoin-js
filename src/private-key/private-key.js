@@ -1,32 +1,45 @@
 import * as WIF from './wallet-import-format.js'
 import * as Address from '../address/address.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
+import * as ECDSA from '../../../elliptic-js/src/signatures/ecdsa-signature.js'
+import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
 
-export default class PrivateKey {
+/**
+ * Symbol to protect private class members.
+ * @type {Symbol} - The private symbol.
+ */
+const PRIVATE = Symbol('PRIVATE')
+
+export class PrivateKey {
 
     constructor(privateKey) {
-        this._privateKey = privateKey
+        this[PRIVATE] = {
+            privateKey: privateKey
+        }
     }
 
     /**
-     * Converts this private key to an address.
+     * Converts this private key to a Bitcoin address address.
+     * 
      * @param  {String?} network - the address' network.
      * @return {String} 
      */
     toAddress(network = 'MAINNET') {
-        return Address.privateKeyToP2PKH(this._privateKey, network)
+        return Address.privateKeyToP2PKH(this[PRIVATE].privateKey, network)
     }
 
     /**
-     * Exports the private key in WIF
+     * Exports the private key in WIF.
+     * 
      * @return {Promise<String>} - The WIF encoded private key.
      */
     export (network = 'MAINNET') {
-        return WIF.encode(this._privateKey, network)
+        return WIF.encode(this[PRIVATE].privateKey, network)
     }
 
     /**
      * Import a private key from WIF.
+     * 
      * @param  {String} encoded - The WIF encoded private key.
      * @param  {String?} network - the address' network.
      * @return {PrivateKey} - the corresponding private key.
@@ -38,6 +51,7 @@ export default class PrivateKey {
 
     /**
      * Generate a new private key.
+     * 
      * @return {PrivateKey} - The generated private key.
      */
     static generate() {
@@ -53,11 +67,16 @@ export default class PrivateKey {
      * @param  {SigHashFlag} sigHashFlag - the signature hash flag
      * @return {Transaction} - the signed transaction.
      */
-    sign(transaction, inputIndex, sigHashFlag) {
-        const txCopy = transaction.copyToSign(inputIndex, sigHashFlag)
-        const signature = ECDSA.sign(this.privateKey, txCopy)
+    async sign(transaction, inputIndex, sigHashFlag = 1) {
+        let txCopy = new Buffer(transaction.toBuffer())
+        txCopy = Buffer.fromHex(txCopy.toHex() + '01') // TODO: care for sighashflag somewhere else
+        const signature = await ECDSA.sign(txCopy, this[PRIVATE].privateKey)
         transaction.addWitness(inputIndex, this.publicKey, signature)
         return transaction
+    }
+
+    get publicKey() {
+        return Secp256k1.publicKey(this[PRIVATE].privateKey)
     }
 }
 
@@ -74,7 +93,13 @@ export class TestnetPrivateKey extends PrivateKey {
      * @override
      */
     export () {
-        return super.export(this.buffer, 'TESTNET')
+        return super.export('TESTNET')
     }
 
+    /**
+     * @override
+     */
+    static import(encoded) {
+        return super.import(encoded, 'TESTNET')
+    }
 }
