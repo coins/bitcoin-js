@@ -6,10 +6,26 @@ import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
 import { BitcoinSignature } from './bitcoin-signature.js'
 
 /**
- * Class to represent private keys
+ * 
+ * A Symbol to protect private class members from being accessed from outside of this module.
+ * Note this is *not* really private. 
+ * You can get symbols from a class using Object.getOwnPropertySymbols(obj).
+ * Still this ensures this class does not leak its private key accidentally.
+ * 
+ * @see https://medium.com/@davidrhyswhite/private-members-in-es6-db1ccd6128a5
+ * 
+ * @type {Symbol} - The private symbol to hide private class members.
+ */
+const PRIVATE = Symbol('private-class-members')
+
+/**
+ * Class to represent a private key
  */
 export class PrivateKey {
 
+    /**
+     * @param  {BigInt} private key - The private key.
+     */
     constructor(privateKey) {
         this[PRIVATE] = {
             privateKey: privateKey
@@ -17,7 +33,7 @@ export class PrivateKey {
     }
 
     /**
-     * Converts this private key to a Bitcoin address address.
+     * Converts this private key to a Bitcoin address.
      * 
      * @param  {String?} network - the address' network.
      * @return {String} 
@@ -27,7 +43,7 @@ export class PrivateKey {
     }
 
     /**
-     * Exports the private key in WIF.
+     * Exports this private key in WIF.
      * 
      * @return {Promise<String>} - The WIF encoded private key.
      */
@@ -58,6 +74,14 @@ export class PrivateKey {
     }
 
     /**
+     * The corresponding public key.
+     * @return {Buffer}
+     */
+    get publicKey() {
+        return Secp256k1.publicKey(this[PRIVATE].privateKey)
+    }
+
+    /**
      * Sign a transaction with this private key.
      * 
      * @param  {Transaction} transaction - the transaction to sign.
@@ -75,14 +99,6 @@ export class PrivateKey {
         const bitcoinSignature = new BitcoinSignature(signatureDER, sigHashFlag)
         transaction.addWitness(inputIndex, this.publicKey, bitcoinSignature)
         return transaction
-    }
-
-    /**
-     * The corresponding public key.
-     * @return {Buffer}
-     */
-    get publicKey() {
-        return Secp256k1.publicKey(this[PRIVATE].privateKey)
     }
 }
 
@@ -109,15 +125,3 @@ export class TestnetPrivateKey extends PrivateKey {
         return super.import(encoded, 'TESTNET')
     }
 }
-
-/**
- * 
- * A Symbol to protect private class members from being accessed outside of this module.
- * Note this is not really private. 
- * You can get symbols from a class using Object.getOwnPropertySymbols(obj).
- * 
- * @see https://medium.com/@davidrhyswhite/private-members-in-es6-db1ccd6128a5
- * 
- * @type {Symbol} - The private symbol.
- */
-const PRIVATE = Symbol('private-class-members')

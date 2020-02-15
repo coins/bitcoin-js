@@ -12,7 +12,6 @@ describe('A private key', function() {
         
         expect(encoded).toBe(private_key_WIF)
         expect(decoded).toBe(private_key_bigint)
-
     })
 
     it('can be generated', async function() {
