@@ -5,7 +5,6 @@ import * as ECDSA from '../../../elliptic-js/src/signatures/ecdsa-signature.js'
 import { Secp256k1 } from '../../../elliptic-js/src/secp256k1/secp256k1.js'
 
 
-
 /**
  * Class to represent private keys
  */
@@ -108,7 +107,13 @@ export class TestnetPrivateKey extends PrivateKey {
 }
 
 /**
- * Symbol to protect private class members from being accessed.
+ * 
+ * A Symbol to protect private class members from being accessed outside of this module.
+ * Note this is not really private. 
+ * You can get symbols from a class using Object.getOwnPropertySymbols(obj).
+ * 
+ * @see https://medium.com/@davidrhyswhite/private-members-in-es6-db1ccd6128a5
+ * 
  * @type {Symbol} - The private symbol.
  */
 const PRIVATE = Symbol('private-class-members')

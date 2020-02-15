@@ -14,10 +14,12 @@ export class BlockHeader extends SerialBuffer {
      * @param  {TimeStamp}         timeStamp - This block's creation date. 
      * @param  {DifficultyBits}    bits - The proof-of-work's target difficulty.
      * @param  {Uint32}            nonce - The nonce to solve the proof-of-work puzzle.
+     *
+     * @ see https://en.bitcoin.it/wiki/Block_hashing_algorithm
      */
     constructor(version, prevBlockId, merkleRoot, timeStamp, bits, nonce) {
         super()
-        this.version = version
+        this.version = version // TODO: this should be a signed int.
         this.prevBlockId = prevBlockId
         this.merkleRoot = merkleRoot
         this.timeStamp = timeStamp

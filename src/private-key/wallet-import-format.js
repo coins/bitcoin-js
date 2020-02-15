@@ -1,4 +1,5 @@
 /**
+ * Bitcoin Wallet Import Format
  * @version 0.0.1
  * @see https://en.bitcoin.it/wiki/Wallet_import_format
  */

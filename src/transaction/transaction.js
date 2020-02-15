@@ -1,13 +1,12 @@
-import { SerialBuffer, VarInt, Uint64, Uint32, Uint8 } from '../../../buffer-js/src/serial-buffer/serial-buffer.js'
-import { Buffer } from '../../../buffer-js/buffer.js'
+import { Buffer, SerialBuffer, VarInt, Uint64, Uint32, Uint8 } from '../../../buffer-js/buffer.js'
+import { SerialSHA256d } from '../../../hash-js/hash.js'
 import { addressToScriptPubKey } from '../address/address.js'
 import { PublicKeyScript, SignatureScript, Script } from './bitcoin-script.js'
-import { SerialSHA256d } from '../../../hash-js/hash.js'
 
 export class Transaction extends SerialBuffer {
 
     // TODO: make fields of class explicit
-    
+
     byteLength() {
         return this.version.byteLength() +
             this.inputs.byteLength() +
@@ -38,7 +37,7 @@ export class Transaction extends SerialBuffer {
     }
 
     addInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence) {
-        const input = new TxInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
+        const input = TxInput.fromHex(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
         this.inputs.add(input)
     }
 
@@ -62,7 +61,7 @@ export class Transaction extends SerialBuffer {
 export class StandardTransaction extends Transaction {
 
     constructor(version = 1, inputs, outputs, lockTime = 0) {
-        super();
+        super()
         // TODO: this should be private fields
         this.version = new Uint32(version)
         this.inputs = inputs || new TxInputs()
@@ -76,11 +75,11 @@ export class StandardTransaction extends Transaction {
     }
 
     static read(reader) {
-        const version = reader.meta.version;
-        const inputs = TxInputs.read(reader);
-        const outputs = TxOutputs.read(reader);
-        const lockTime = Uint32.read(reader);
-        return new StandardTransaction(version, inputs, outputs, lockTime);
+        const version = reader.meta.version
+        const inputs = TxInputs.read(reader)
+        const outputs = TxOutputs.read(reader)
+        const lockTime = Uint32.read(reader)
+        return new StandardTransaction(version, inputs, outputs, lockTime)
     }
 
 }
@@ -88,39 +87,39 @@ export class StandardTransaction extends Transaction {
 export class SegWitTransaction extends Transaction {
 
     constructor(version, inputs, outputs, witnesses, lockTime) {
-        super();
-        this.version = new Uint32(version);
-        this.marker = new Uint8(0);
-        this.flag = new Uint8(1);
-        this.inputs = inputs;
-        this.outputs = outputs;
-        this.witnesses = witnesses;
-        this.lockTime = lockTime;
+        super()
+        this.version = new Uint32(version)
+        this.marker = new Uint8(0)
+        this.flag = new Uint8(1)
+        this.inputs = inputs
+        this.outputs = outputs
+        this.witnesses = witnesses
+        this.lockTime = lockTime
     }
 
     async id() {
-        const txCopy = new Uint8Array(super.byteLength());
-        this.write(new Writer(txCopy, 'TXID'));
+        const txCopy = new Uint8Array(super.byteLength())
+        this.write(new Writer(txCopy, 'TXID'))
         return SHA256d(txCopy)
     }
 
     write(writer) {
         switch (writer.mode) {
             case 'TXID':
-                return super.write(writer);
+                return super.write(writer)
             default:
-                return this.writeAll(writer);
+                return this.writeAll(writer)
         }
     }
 
     writeAll(writer) {
-        this.version.write(writer);
-        this.marker.write(writer);
-        this.flag.write(writer);
-        this.inputs.write(writer);
-        this.outputs.write(writer);
-        this.witnesses.write(writer);
-        this.lockTime.write(writer);
+        this.version.write(writer)
+        this.marker.write(writer)
+        this.flag.write(writer)
+        this.inputs.write(writer)
+        this.outputs.write(writer)
+        this.witnesses.write(writer)
+        this.lockTime.write(writer)
     }
 
     byteLength() {
@@ -134,13 +133,13 @@ export class SegWitTransaction extends Transaction {
     }
 
     static read(reader) {
-        const version = reader.meta.version;
-        const flag = Uint8.read(reader);
-        const inputs = TxInputs.read(reader);
-        const outputs = TxOutputs.read(reader);
-        const witnesses = Witnesses.read(reader);
+        const version = reader.meta.version
+        const flag = Uint8.read(reader)
+        const inputs = TxInputs.read(reader)
+        const outputs = TxOutputs.read(reader)
+        const witnesses = Witnesses.read(reader)
         const lockTime = Uint32.read(reader)
-        return new SegWitTransaction(version, inputs, outputs, witnesses, lockTime);
+        return new SegWitTransaction(version, inputs, outputs, witnesses, lockTime)
     }
 }
 
@@ -158,18 +157,18 @@ class TxInputs {
 
     byteLength() {
         return this.inCount.byteLength() +
-            this.inputs.reduce((sum, input) => sum + input.byteLength(), 0);
+            this.inputs.reduce((sum, input) => sum + input.byteLength(), 0)
     }
 
     static read(reader) {
-        const inCount = reader.meta.inputsLength || VarInt.read(reader);
-        reader.meta.inputsLength = inCount; // inCount is also witnessCount
-        const inputs = [];
+        const inCount = reader.meta.inputsLength || VarInt.read(reader)
+        reader.meta.inputsLength = inCount // inCount is also witnessCount
+        const inputs = []
         for (let i = 0; i < inCount; i++) {
-            const input = TxInput.read(reader);
-            inputs.push(input);
+            const input = TxInput.read(reader)
+            inputs.push(input)
         }
-        return new TxInputs(inputs);
+        return new TxInputs(inputs)
     }
 
     add(input) {
@@ -182,21 +181,19 @@ class TxInputs {
     }
 }
 
-class TxInput { 
+class TxInput {
 
-    constructor(prevTxOutHash, prevTxOutIndex, scriptSig = '', sequence = 0xffffffff) {
-        if (!(prevTxOutHash instanceof SerialSHA256d)) {
-            prevTxOutHash = SerialSHA256d.fromHex(prevTxOutHash).reverse() // reverse to fix satoshi's byte order
-        }
+    constructor(prevTxOutHash, prevTxOutIndex, scriptSig, sequence = 0xffffffff) {
         this.prevTxOutHash = prevTxOutHash
         this.prevTxOutIndex = new Uint32(prevTxOutIndex)
-
-        if (!(scriptSig instanceof Script)) {
-            scriptSig = Script.fromHex(scriptSig)
-        }
         this.scriptSig = scriptSig
-
         this.sequence = new Uint32(sequence) // irrelevant unless transaction's lock_time is > 0
+    }
+
+    static fromHex(prevTxOutHash, prevTxOutIndex, scriptSig = '', sequence) {
+        prevTxOutHash = SerialSHA256d.fromHex(prevTxOutHash).reverse() // reverse to fix satoshi's byte order
+        scriptSig = Script.fromHex(scriptSig)
+        return new TxInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
     }
 
     write(writer) {
@@ -239,7 +236,7 @@ class TxOutputs {
 
     write(writer) {
         this.outCount.write(writer)
-        this.outputs.forEach(output => output.write(writer));
+        this.outputs.forEach(output => output.write(writer))
     }
 
     byteLength() {
@@ -248,13 +245,13 @@ class TxOutputs {
     }
 
     static read(reader) {
-        const outCount = VarInt.read(reader);
-        const outputs = [];
+        const outCount = VarInt.read(reader)
+        const outputs = []
         for (let i = 0; i < outCount; i++) {
-            const output = TxOutput.read(reader);
-            outputs.push(output);
+            const output = TxOutput.read(reader)
+            outputs.push(output)
         }
-        return new TxOutputs(outputs);
+        return new TxOutputs(outputs)
     }
 
     add(output) {
@@ -267,18 +264,18 @@ class TxOutput {
 
     constructor(value, scriptPubKey) {
         if (!(value instanceof TxValue)) {
-            value = new TxValue(value);
+            value = new TxValue(value)
         }
-        this.value = value;
+        this.value = value
         if (!(scriptPubKey instanceof Script)) {
-            scriptPubKey = Script.fromHex(scriptPubKey);
+            scriptPubKey = Script.fromHex(scriptPubKey)
         }
-        this.scriptPubKey = scriptPubKey;
+        this.scriptPubKey = scriptPubKey
     }
 
     write(writer) {
-        this.value.write(writer);
-        this.scriptPubKey.write(writer);
+        this.value.write(writer)
+        this.scriptPubKey.write(writer)
     }
 
     byteLength() {
@@ -287,7 +284,7 @@ class TxOutput {
 
     static read(reader) {
         const value = TxValue.read(reader)
-        const scriptPubKey = Script.read(reader);
+        const scriptPubKey = Script.read(reader)
         return new TxOutput(value, scriptPubKey)
     }
 
@@ -296,62 +293,7 @@ class TxOutput {
 class TxValue extends Uint64 {
 
     toBitcoins() {
-        return Number(this.txValue.value) / 1e8;
+        return Number(this.txValue.value) / 1e8
     }
 
-}
-
-class Witnesses {
-
-    constructor(witnesses) {
-        this.witnesses = witnesses;
-    }
-
-    write(writer) {
-        this.witnesses.forEach(
-            witness => witness.write(writer))
-    }
-
-    byteLength() {
-        return this.witnesses.reduce(
-            (sum, witness) => sum + witness.byteLength(), 0)
-    }
-
-    static read(reader) {
-        let witnesses = [];
-        for (let i = 0; i < reader.meta.inputsLength; i++) {
-            const witness = Witness.read(reader);
-            witnesses.push(witness);
-        }
-        return new Witnesses(witnesses);
-    }
-
-}
-
-class Witness {
-
-    constructor(signatureScript, publicKeyScript, witnessCount) {
-        this.witnessCount = witnessCount;
-        this.signatureScript = signatureScript;
-        this.publicKeyScript = publicKeyScript;
-    }
-
-    write(writer) {
-        this.witnessCount.write(writer);
-        this.signatureScript.write(writer);
-        this.publicKeyScript.write(writer);
-    }
-
-    byteLength() {
-        return this.witnessCount.byteLength() +
-            this.signatureScript.byteLength() +
-            this.publicKeyScript.byteLength();
-    }
-
-    static read(reader) {
-        const witnessCount = VarInt.read(reader);
-        const signatureScript = SignatureScript.read(reader);
-        const publicKeyScript = PublicKeyScript.read(reader);
-        return new Witness(witnessCount, signatureScript, publicKeyScript);
-    }
 }
