@@ -7,13 +7,13 @@ import { SerialSHA256d } from '../../../hash-js/hash.js'
 export class BlockHeader extends SerialBuffer {
 
     /**
-     * Creates a new BlockHeader
-     * @param  {Uint32}            version 
-     * @param  {SerialSHA256d}     prevBlockId
-     * @param  {SerialSHA256d}     merkleRoot
-     * @param  {TimeStamp}         timeStamp
-     * @param  {DifficultyBits}    bits
-     * @param  {Uint32}            nonce
+     * Create a BlockHeader
+     * @param  {Uint32}            version - This block's version.
+     * @param  {SerialSHA256d}     prevBlockId - The previous block's hash.
+     * @param  {SerialSHA256d}     merkleRoot - This block's transactions' Merkle root.
+     * @param  {TimeStamp}         timeStamp - This block's creation date. 
+     * @param  {DifficultyBits}    bits - The proof-of-work's target difficulty.
+     * @param  {Uint32}            nonce - The nonce to solve the proof-of-work puzzle.
      */
     constructor(version, prevBlockId, merkleRoot, timeStamp, bits, nonce) {
         super()
