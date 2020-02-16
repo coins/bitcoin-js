@@ -28,7 +28,7 @@ export class TxInputs extends SerialBuffer {
      * @return {TxInputs}
      */
     static read(reader) {
-        const inCount = reader.meta.inputsLength || VarInt.read(reader)
+        const inCount = reader.meta.inputsLength || VarInt.read(reader) // SegWit transactions
         reader.meta.inputsLength = inCount // inCount is also witnessCount
         const inputs = []
         for (let i = 0; i < inCount; i++) {

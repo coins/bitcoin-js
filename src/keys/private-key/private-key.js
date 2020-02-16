@@ -6,6 +6,10 @@ import * as Address from '../address/address.js'
 import { BitcoinSignature, SighashFlag } from '../bitcoin-signature/bitcoin-signature.js'
 
 
+import { Transaction } from '../../transaction/transaction.js'
+
+
+
 const MAINNET = 'MAINNET'
 const TESTNET = 'TESTNET'
 
@@ -90,11 +94,14 @@ export class PrivateKey {
      * @param  {SigHashFlag} sigHashFlag - the signature hash flag
      * @return {Transaction} - the signed transaction.
      */
-    async sign(transaction, inputIndex, sigHashFlag = SighashFlag.SIGHASH_ALL) {
+    async signTransaction(transaction, inputIndex, sigHashFlag = SighashFlag.SIGHASH_ALL) {
         const address = await this.toAddress()
         const publicKeyScript = Address.addressToScriptPubKey(address)
-        let txCopy = transaction.sigHashCopy(inputIndex, sigHashFlag, publicKeyScript)
-        console.log('copy', txCopy, await this.toAddress())
+        console.log('pubKeyScript', publicKeyScript)
+        let txCopy = await transaction.sigHashAllCopy(inputIndex, publicKeyScript)
+
+        console.log('copy', txCopy, Transaction.fromHex(txCopy))
+
         txCopy = Buffer.fromHex(txCopy + sigHashFlag.toHex())
         const signatureDER = await ECDSA.sign(txCopy, this[PRIVATE].privateKey)
         const bitcoinSignature = new BitcoinSignature(signatureDER, sigHashFlag)
@@ -140,3 +147,4 @@ export class TestnetPrivateKey extends PrivateKey {
  * @type {Symbol} - The private symbol to hide private class members.
  */
 const PRIVATE = Symbol('private-class-members')
+

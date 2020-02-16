@@ -1,6 +1,7 @@
 import { Buffer, SerialBuffer, VarInt, Uint64, Uint32, Uint8, SerialReader } from '../../../buffer-js/buffer.js'
 import { SerialSHA256d } from '../../../hash-js/hash.js'
 import { Script } from './bitcoin-script/bitcoin-script.js'
+import { SighashFlag } from '../keys/bitcoin-signature/bitcoin-signature.js'
 
 import { TxInputs } from './tx-inputs/tx-inputs.js'
 import { TxOutputs } from './tx-outputs/tx-outputs.js'
@@ -76,13 +77,13 @@ export class Transaction extends SerialBuffer {
     }
 
     /**
-     * Returns a copy of this Transaction.
+     * Create a copy of this Transaction.
      * @return {Transaction}
      */
     copy() {
         return Transaction.read(new SerialReader(this.toBuffer()))
     }
-    
+
     /**
      * Copy a transaction to compute its signature hash.
      * 
@@ -95,8 +96,13 @@ export class Transaction extends SerialBuffer {
         const txCopy = this.copy()
         txCopy.inputs.emptyScripts()
         txCopy.inputs.setScript(inputIndex, Script.fromHex(publicKeyScript))
-        const hex = txCopy.toHex()
+        const sighashFlagHex = (new Uint32(sigHashFlag)).toHex()
+        const hex = txCopy.toHex() + sighashFlagHex
         return hex
+    }
+
+    sigHashAllCopy(inputIndex, publicKeyScript) {
+        return this.sigHashCopy(inputIndex, SighashFlag.SIGHASH_ALL, publicKeyScript)
     }
 }
 
@@ -118,7 +124,7 @@ export class StandardTransaction extends Transaction {
         this.version = version || new Uint32(1)
         this.inputs = inputs || new TxInputs()
         this.outputs = outputs || new TxOutputs()
-        this.lockTime = lockTime || new Uint32(lockTime)
+        this.lockTime = lockTime || new Uint32(0)
     }
 
     /** 

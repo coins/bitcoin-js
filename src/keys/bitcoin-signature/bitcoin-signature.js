@@ -15,7 +15,6 @@ export class BitcoinSignature extends SerialBuffer {
      */
     sighashFlag
 
-
     /**
      * @param  {SignatureDER} signatureDER - The DER encoded ECDSA signature.
      * @param  {SighashFlag} sighashFlag - The signature's hash flag.
@@ -51,7 +50,9 @@ export class BitcoinSignature extends SerialBuffer {
     }
 }
 
-
+/**
+ * A Signature's hash type.
+ */
 export class SighashFlag extends Uint8 {
 
     constructor(flag) {
@@ -60,43 +61,46 @@ export class SighashFlag extends Uint8 {
         super(flag)
     }
 
-    toString() {
-        return SighashFlag.toString(this)
-    }
-
     static get FLAGS() {
         return {
-            SIGHASH_ALL: 1,
-            SIGHASH_NONE: 2,
-            SIGHASH_SINGLE: 3,
-            SIGHASH_ANYONECANPAY: 128, // = 0x80
+            SIGHASH_ALL: 0x01,
+            SIGHASH_NONE: 0x02,
+            SIGHASH_SINGLE: 0x03,
+            SIGHASH_ANYONECANPAY: 0x80
         }
-    }
-
-    static toString(sighashFlag) {
-        return Object.keys(SighashFlag.FLAGS).filter(
-            key => SighashFlag.FLAGS[key] == sighashFlag)[0]
     }
 
     static isValidFlag(flag) {
         return !!SighashFlag.FLAGS[flag]
     }
 
-
     static get SIGHASH_ALL() {
-        return new SighashFlag(1)
+        return new SighashFlag(0x01)
     }
 
     static get SIGHASH_NONE() {
-        return new SighashFlag(2)
+        return new SighashFlag(0x02)
     }
 
     static get SIGHASH_SINGLE() {
-        return new SighashFlag(3)
+        return new SighashFlag(0x03)
     }
 
     static get SIGHASH_ANYONECANPAY() {
-        return new SighashFlag(128)
+        return new SighashFlag(0x80)
     }
+
+
+    // WARNING!
+    // The following implicitly overwrites Number.toString(16) and thus, hex conversion!
+    //
+    // toString() {
+    //     return SighashFlag.toString(this)
+    // }
+
+    // static toString(sighashFlag) {
+    //     return Object.keys(SighashFlag.FLAGS).filter(
+    //         key => SighashFlag.FLAGS[key] == sighashFlag)[0]
+    // }
 
 }

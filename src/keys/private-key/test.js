@@ -1,4 +1,4 @@
-import { PrivateKey } from './private-key.js'
+import { PrivateKey, TestnetPrivateKey } from './private-key.js'
 
 // Test vectors from: https://en.bitcoin.it/wiki/Private_key
 describe('Keys - A private key', function() {
@@ -11,5 +11,13 @@ describe('Keys - A private key', function() {
         const importedAddress = await imported.toAddress()
 
         expect(address).toBe(importedAddress)
+    })
+
+
+    it('can generate a Testnet address', async function() {
+        const privateKey = await TestnetPrivateKey.import('92yMVPtwzsMDDHXhCxf6qexLXQwdHE7wwREc24E59nyzjAWXVAf')
+        const address = await privateKey.toAddress()
+
+        expect(address).toBe('mvJe9AfPLrxpfHwjLNjDAiVsFSzwBGaMSP')
     })
 })

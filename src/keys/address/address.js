@@ -13,10 +13,11 @@ import { Buffer } from '../../../../buffer-js/buffer.js'
 
 /**
 * The version byte to denote an address' network
+* @see https://en.bitcoin.it/wiki/List_of_address_prefixes
 */
 const NETWORK_VERSION = {
     'MAINNET': '00',
-    'TESTNET': '6f'
+    'TESTNET': '6F'
 }
 
 /**
@@ -43,7 +44,7 @@ export async function privateKeyToP2PKH(privateKey, network = 'MAINNET') {
 
 
 /**
- * Generates a P2PKH address from a public key
+ * Generates a P2PKH address from a compressed public key
  * P2PKH means "pay to public key hash" 
  * 
  * @param {Buffer} publicKey - the compressed public key
@@ -67,10 +68,10 @@ export async function publicKeyToP2PKH(publicKey, network = 'MAINNET') {
     const versionedHash = await SHA256d.hashHex(versioned)
 
     // 7 - Take the first 4 bytes of the second SHA-256 hash. This is the address checksum
-    const checksum = versionedHash.slice(0, 4)
+    const checksum = versionedHash.slice(0, 4).toHex()
 
     // 8 - Add the 4 checksum bytes from stage 7 at the end of extended RIPEMD-160 hash from stage 4. This is the 25-byte binary Bitcoin Address.
-    const addressHex = versioned + checksum.toHex()
+    const addressHex = versioned + checksum
 
     // 9 - Convert the result from a byte string into a base58 string using Base58Check encoding. This is the most commonly used Bitcoin Address format
     return Buffer.fromHex(addressHex).toBase58()

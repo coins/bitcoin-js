@@ -55,7 +55,6 @@ export class TxOutputs extends SerialBuffer {
     }
 
     /**
-     *
      * Add an output to this transaction.
      * 
      * @param {number} value - The output's value.

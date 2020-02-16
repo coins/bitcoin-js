@@ -76,3 +76,7 @@ export async function decode(stringWIF, network = 'MAINNET') {
     const privateKey = shortened.slice(1)
     return privateKey.toBigInt()
 }
+
+
+
+// TODO: implement *compressed* WIF format
