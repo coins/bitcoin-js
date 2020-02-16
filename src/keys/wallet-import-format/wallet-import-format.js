@@ -55,7 +55,6 @@ export async function encode(privateKey, network = 'MAINNET') {
  */
 export async function decode(stringWIF, network = 'MAINNET') {
     // 1 - Take a Wallet Import Format string
-
     // 2 - Convert it to a byte string using Base58Check encoding
     const bytes = Buffer.fromBase58(stringWIF)
 

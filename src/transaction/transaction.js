@@ -75,16 +75,28 @@ export class Transaction extends SerialBuffer {
         }
     }
 
+    /**
+     * Returns a copy of this Transaction.
+     * @return {Transaction}
+     */
+    copy() {
+        return Transaction.read(new SerialReader(this.toBuffer()))
+    }
+    
+    /**
+     * Copy a transaction to compute its signature hash.
+     * 
+     * @param  {number} inputIndex - Index of the input to sign.
+     * @param  {SigHashFlag} sigHashFlag - The signature flag.
+     * @param  {string} publicKeyScript - The hex encoded publicKeyScript.
+     * @return {string} - The hex encoded copy 
+     */
     sigHashCopy(inputIndex, sigHashFlag, publicKeyScript) {
         const txCopy = this.copy()
         txCopy.inputs.emptyScripts()
         txCopy.inputs.setScript(inputIndex, Script.fromHex(publicKeyScript))
         const hex = txCopy.toHex()
         return hex
-    }
-
-    copy() {
-        return Transaction.read(new SerialReader(this.toBuffer()))
     }
 }
 
@@ -96,9 +108,9 @@ export class StandardTransaction extends Transaction {
 
     /**
      * @param  {Uint32?} version - The version of this transaction.
-     * @param  {TxInputs} inputs - The inputs of this transaction.
-     * @param  {TxOutputs} outputs - The outputs of this transaction.
-     * @param  {Number} lockTime - 
+     * @param  {TxInputs?} inputs - The inputs of this transaction.
+     * @param  {TxOutputs?} outputs - The outputs of this transaction.
+     * @param  {Uint32?} lockTime - The lock time of this transaction.
      */
     constructor(version, inputs, outputs, lockTime) {
         super()
@@ -109,11 +121,18 @@ export class StandardTransaction extends Transaction {
         this.lockTime = lockTime || new Uint32(lockTime)
     }
 
+    /** 
+     * The TXID of this transaction.
+     * @return {Promise<SerialSHA256d>} 
+     */
     async id() {
         const txCopy = this.toBuffer()
         return SerialSHA256d.hash(txCopy)
     }
 
+    /**
+     * @override
+     */
     static read(reader) {
         const version = reader.meta.version
         const inputs = TxInputs.read(reader)

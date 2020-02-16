@@ -62,14 +62,22 @@ export class Script {
     write(writer) {
         this.length = new VarInt(this.script.byteLength)
         this.length.write(writer)
-        // this.script.write(writer);
         writer.writeBytes(this.script)
     }
 
     add(script) {
         const length = script.byteLength || script.size()
-        this.script = concat(this.script, Buffer.fromBigInt(BigInt(76)))
-        this.script = concat(this.script, Buffer.fromBigInt(BigInt(length)))
+
+        // We have to do a minimal push!
+        // https://github.com/lbryio/lbrycrd/issues/242#issuecomment-455920837
+        // https://github.com/lbryio/lbrycrd/blob/master/src/script/interpreter.cpp#L229
+        if(length < 76){
+            this.script = concat(this.script, Buffer.fromBigInt(BigInt(length)))
+        } else {
+            this.script = concat(this.script, Buffer.fromBigInt(BigInt(0x4c)))
+            this.script = concat(this.script, Buffer.fromBigInt(BigInt(length)))
+        }
+
         this.script = concat(this.script, script)
     }
 

@@ -9,7 +9,6 @@ describe('A Bitcoin address', function() {
         expect(address).toBe('1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs')
     })
 
-
     it('can be converted to a pubKeyScript', async function() {
         const address = await addressToScriptPubKey('1LukeQU5jwebXbMLDVydeH4vFSobRV9rkj')
         expect(address).toBe('76a914da6473ed373e08f46dd8003fca7ba72fbe9c555e88ac')

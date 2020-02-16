@@ -3,14 +3,27 @@ import { SignatureDER } from '../../../../elliptic-js/src/signature-DER/signatur
 
 export class BitcoinSignature extends SerialBuffer {
 
-    signatureDER = null
+    /** 
+     * The DER encoded ECDSA signature.
+     * @type {SignatureDER}
+     */
+    signatureDER
 
-    sighashFlag = null
+    /**
+     * The signature's hash flag.
+     * @type {SighashFlag}
+     */
+    sighashFlag
 
+
+    /**
+     * @param  {SignatureDER} signatureDER - The DER encoded ECDSA signature.
+     * @param  {SighashFlag} sighashFlag - The signature's hash flag.
+     */
     constructor(signatureDER, sighashFlag) {
         super()
         this.signatureDER = signatureDER
-        this.sighashFlag = new SighashFlag(sighashFlag)
+        this.sighashFlag = sighashFlag
     }
 
     /**
@@ -37,6 +50,7 @@ export class BitcoinSignature extends SerialBuffer {
         return new BitcoinSignature(signatureDER, sighashFlag)
     }
 }
+
 
 export class SighashFlag extends Uint8 {
 
