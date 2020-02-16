@@ -95,17 +95,21 @@ export class PrivateKey {
      * @return {Transaction} - the signed transaction.
      */
     async signTransaction(transaction, inputIndex, sigHashFlag = SighashFlag.SIGHASH_ALL) {
+        // Compute the script pub key
         const address = await this.toAddress()
         const publicKeyScript = Address.addressToScriptPubKey(address)
-        console.log('pubKeyScript', publicKeyScript)
+        
+        // Copy the transaction
         let txCopy = await transaction.sigHashAllCopy(inputIndex, publicKeyScript)
+        txCopy = Buffer.fromHex(txCopy)
 
-        console.log('copy', txCopy, Transaction.fromHex(txCopy))
-
-        txCopy = Buffer.fromHex(txCopy + sigHashFlag.toHex())
+        // Sign the transaction
         const signatureDER = await ECDSA.sign(txCopy, this[PRIVATE].privateKey)
         const bitcoinSignature = new BitcoinSignature(signatureDER, sigHashFlag)
+        
+        // Add the witness data to the transaction.
         transaction.inputs.addWitness(inputIndex, this.publicKey, bitcoinSignature)
+        
         return transaction
     }
 }
@@ -130,7 +134,7 @@ export class TestnetPrivateKey extends PrivateKey {
      */
     static async import(encoded) {
         const decoded = await WIF.decode(encoded, TESTNET)
-        return new TestnetPrivateKey(decoded) 
+        return new TestnetPrivateKey(decoded)
     }
 }
 
@@ -147,4 +151,3 @@ export class TestnetPrivateKey extends PrivateKey {
  * @type {Symbol} - The private symbol to hide private class members.
  */
 const PRIVATE = Symbol('private-class-members')
-
