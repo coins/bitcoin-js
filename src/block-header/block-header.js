@@ -15,7 +15,7 @@ export class BlockHeader extends SerialBuffer {
      * @param  {DifficultyBits}    bits - The proof-of-work's target difficulty.
      * @param  {Uint32}            nonce - The nonce to solve the proof-of-work puzzle.
      *
-     * @ see https://en.bitcoin.it/wiki/Block_hashing_algorithm
+     * @see https://en.bitcoin.it/wiki/Block_hashing_algorithm
      */
     constructor(version, prevBlockId, merkleRoot, timeStamp, bits, nonce) {
         super()

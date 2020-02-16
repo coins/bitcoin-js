@@ -23,19 +23,19 @@ export class TxInputs extends SerialBuffer {
     }
 
     /**
-     * @override
+     * Read inputs from a SerialReader
+     * @param  {SerialReader}
+     * @return {TxInputs}
      */
-    byteLength() {
-        return this.inputsCount.byteLength() +
-            this._inputs.reduce((sum, input) => sum + input.byteLength(), 0)
-    }
-
-    /**
-     * The number of inputs as VarInt.
-     * @return {VarInt}
-     */
-    get inputsCount() {
-        return new VarInt(this._inputs.length)
+    static read(reader) {
+        const inCount = reader.meta.inputsLength || VarInt.read(reader)
+        reader.meta.inputsLength = inCount // inCount is also witnessCount
+        const inputs = []
+        for (let i = 0; i < inCount; i++) {
+            const input = TxInput.read(reader)
+            inputs.push(input)
+        }
+        return new TxInputs(inputs)
     }
 
     /**
@@ -50,19 +50,19 @@ export class TxInputs extends SerialBuffer {
     }
 
     /**
-     * Read inputs from a SerialReader
-     * @param  {SerialReader}
-     * @return {TxInputs}
+     * @override
      */
-    static read(reader) {
-        const inCount = reader.meta.inputsLength || VarInt.read(reader)
-        reader.meta.inputsLength = inCount // inCount is also witnessCount
-        const inputs = []
-        for (let i = 0; i < inCount; i++) {
-            const input = TxInput.read(reader)
-            inputs.push(input)
-        }
-        return new TxInputs(inputs)
+    byteLength() {
+        return this.inputsCount.byteLength() +
+            this._inputs.reduce((sum, input) => sum + input.byteLength(), 0)
+    }
+
+    /**
+     * The number of inputs as VarInt.
+     * @return {VarInt}
+     */
+    get inputsCount() {
+        return new VarInt(this._inputs.length)
     }
 
     /**
@@ -88,8 +88,8 @@ export class TxInputs extends SerialBuffer {
     }
 
     /** 
-     * @param {number} inputIndex - 
-     * @param {Script} script - 
+     * @param {number} inputIndex - The index of the input to set the script.
+     * @param {Script} script - The script to set.
      */
     setScript(inputIndex, script) {
         this._inputs[inputIndex].scriptSig = script
@@ -99,7 +99,7 @@ export class TxInputs extends SerialBuffer {
      * 
      * Add a witness to unlock an input.
      * 
-     * @param {number} inputIndex - 
+     * @param {number} inputIndex - The index of the input to add a witness to.
      * @param {Buffer} publicKey - The public key which corresponds to the input's address.
      * @param {BitcoinSignature} signature - The signature unlocking the input.
      */
@@ -110,7 +110,32 @@ export class TxInputs extends SerialBuffer {
     }
 }
 
+
 class TxInput {
+
+    /**
+     * The hash of the transaction creating the output to be spent in this input.
+     * @type {SerialSHA256d}
+     */
+    prevTxOutHash
+
+    /**
+     * The output index of the output to be spent in this input. 
+     * @type {Number}
+     */
+    prevTxOutIndex
+
+    /**
+     * The unlocking script.
+     * @type {Script}
+     */
+    scriptSig
+
+    /**
+     * The input's sequence number.
+     * @type {Uint32}
+     */
+    sequence
 
     constructor(prevTxOutHash, prevTxOutIndex, scriptSig, sequence = 0xffffffff) {
         this.prevTxOutHash = prevTxOutHash
