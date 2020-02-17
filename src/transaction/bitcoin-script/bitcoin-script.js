@@ -26,7 +26,8 @@ export class Script extends SerialBuffer {
         if (length < 76) {
             this.script = concat(this.script, Buffer.fromBigInt(BigInt(length)))
         } else {
-            this.script = concat(this.script, Buffer.fromBigInt(BigInt(0x4c)))
+            const OP_PUSHDATA1 = 0x4c
+            this.script = concat(this.script, Buffer.fromBigInt(BigInt(OP_PUSHDATA1)))
             this.script = concat(this.script, Buffer.fromBigInt(BigInt(length)))
             // TODO: implement the other OP_PUSHDATA opcodes
         }

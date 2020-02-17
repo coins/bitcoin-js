@@ -4,20 +4,11 @@ import * as Address from '../address/address.js'
 import { StandardTransaction } from '../../transaction/transaction.js'
 import { Script } from '../../transaction/bitcoin-script/bitcoin-script.js'
 import { SHA256d } from '../../../../hash-js/hash.js'
+import * as Esplora from '../../../../esplora-js/esplora.js'
 
-
-
-describe('A wallet', function() {
-
-    it('can build a transaction', async function() {
-        // const signedTx = await Wallet.pay()
-        // console.log(signedTx)
-    })
-
-})
 
 describe('Transaction builder', function() {
-    
+
     // @see https://medium.com/@bitaps.com/exploring-bitcoin-signing-the-p2pkh-input-b8b4d5c4809c
 
     it('can build a transaction', async function() {
@@ -28,7 +19,6 @@ describe('Transaction builder', function() {
         const tx = new StandardTransaction()
 
         tx.inputs.add('5e2383defe7efcbdc9fdd6dba55da148b206617bbb49e6bb93fce7bfbb459d44', 1)
-
         tx.outputs.add(129000000n, 'n4AYuETorj4gYKendz2ndm9QhjUuruZnfk')
 
         expect(tx.toHex()).toBe('0100000001449d45bbbfe7fc93bbe649bb7b6106b248a15da5dbd6fdc9bdfc7efede83235e0100000000ffffffff014062b007000000001976a914f86f0bc0a2232970ccdf4569815db500f126836188ac00000000')
@@ -47,15 +37,26 @@ describe('Transaction builder', function() {
 
 
 
-// const tx = new StandardTransaction()
-// tx.inputs.add('a8553d45f48c88adcbccd0676b9b6ff3f08241fdd7b85f1c8c01925bbcab150c',1)
+describe('A wallet', function() {
 
-// tx.outputs.add(1914000n, 'n4AYuETorj4gYKendz2ndm9QhjUuruZnfk')
-// tx.inputs._inputs[0].scriptSig = new Script(new Uint8Array([0x01,0x75,0x01,0x52]))
-// console.log(tx.toHex())
+    xit('can build a transaction', async function() {
+        // const signedTx = await Wallet.pay()
+        // console.log(signedTx)
 
+        const tx = new StandardTransaction()
+        tx.inputs.add('a8553d45f48c88adcbccd0676b9b6ff3f08241fdd7b85f1c8c01925bbcab150c', 1)
 
+        tx.outputs.add(1914000n, 'n4AYuETorj4gYKendz2ndm9QhjUuruZnfk')
+        tx.inputs._inputs[0].scriptSig = new Script(new Uint8Array([0x01, 0x75, 0x01, 0x52]))
+        console.log(tx.toHex())
 
+        try {
+            const response = await Esplora.broadcastTransaction(tx)
+            console.log(response)
+        } catch (e) {
+            console.log(e)
+        }
 
+    })
 
-
+})

@@ -72,11 +72,10 @@ export class TxInputs extends SerialBuffer {
      * @param {string} prevTxOutHash - hash of the transaction that created the input.
      * @param {number} prevTxOutIndex - Output index within the transaction that created the input.
      * @param {string} scriptSig - The signature script to unlock the input.
-     * @param {number?} sequence - The sequence number.
+     * @param {Uint32?} sequence - The sequence number.
      */
-    add(prevTxOutHash, prevTxOutIndex, scriptSig, sequence = 0xffffffff) {
+    add(prevTxOutHash, prevTxOutIndex, scriptSig, sequence) {
         const input = TxInput.fromHex(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
-        // add to list
         this._inputs.push(input)
     }
 
@@ -111,7 +110,7 @@ export class TxInputs extends SerialBuffer {
 }
 
 
-class TxInput {
+class TxInput extends SerialBuffer {
 
     /**
      * The hash of the transaction creating the output to be spent in this input.
@@ -137,11 +136,18 @@ class TxInput {
      */
     sequence
 
-    constructor(prevTxOutHash, prevTxOutIndex, scriptSig, sequence = 0xffffffff) {
+    /**
+     * @param  {SerialSHA256d} prevTxOutHash - The hash of the transaction creating the output to be spent in this input.
+     * @param  {Number} prevTxOutIndex - The output index of the output to be spent in this input. 
+     * @param  {Script} scriptSig - The unlocking script.
+     * @param  {Uint32} sequence - The input's sequence number.
+     */
+    constructor(prevTxOutHash, prevTxOutIndex, scriptSig, sequence) {
+        super()
         this.prevTxOutHash = prevTxOutHash
         this.prevTxOutIndex = new Uint32(prevTxOutIndex)
         this.scriptSig = scriptSig
-        this.sequence = new Uint32(sequence) // irrelevant unless transaction's lock_time is > 0
+        this.sequence = sequence || new Uint32(0xffffffff) // irrelevant unless transaction's lock_time is > 0
     }
 
     static fromHex(prevTxOutHash, prevTxOutIndex, scriptSig = '', sequence) {
@@ -150,32 +156,43 @@ class TxInput {
         return new TxInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
     }
 
+    /**
+     * @override
+     */
     write(writer) {
-        this.prevTxOutHash.write(writer);
-        this.prevTxOutIndex.write(writer);
-        // TODO
-        // if(writer.meta.sigHash)
-        //     execute script and then cut out everything until last OP_CODESEPARATOR
-        this.scriptSig.write(writer);
-        this.sequence.write(writer);
+        this.prevTxOutHash.write(writer)
+        this.prevTxOutIndex.write(writer)
+        this.scriptSig.write(writer)
+        this.sequence.write(writer)
     }
 
+    /** 
+     * @override
+     */
     byteLength() {
         return this.prevTxOutHash.byteLength() +
             this.prevTxOutIndex.byteLength() +
             this.scriptSig.byteLength() +
-            this.sequence.byteLength();
+            this.sequence.byteLength()
     }
 
+    /**
+     * Set the unlocking script to an empty script.
+     */
     setEmptyScript() {
         this.scriptSig = Script.fromHex('')
     }
 
+    /**
+     * Parse a byte stream into an TxInput object.
+     * @param  {SerialReader} reader - The reader to read from.
+     * @return {TxInput} - The parsed TxInput object.
+     */
     static read(reader) {
-        const prevTxOutHash = SerialSHA256d.read(reader);
-        const prevTxOutIndex = Uint32.read(reader);
-        const scriptSig = Script.read(reader);
-        const sequence = Uint32.read(reader);
+        const prevTxOutHash = SerialSHA256d.read(reader)
+        const prevTxOutIndex = Uint32.read(reader)
+        const scriptSig = Script.read(reader)
+        const sequence = Uint32.read(reader)
         return new TxInput(prevTxOutHash, prevTxOutIndex, scriptSig, sequence)
     }
 
