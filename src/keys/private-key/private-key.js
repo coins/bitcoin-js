@@ -8,8 +8,6 @@ import { BitcoinSignature, SighashFlag } from '../bitcoin-signature/bitcoin-sign
 
 import { Transaction } from '../../transaction/transaction.js'
 
-
-
 const MAINNET = 'MAINNET'
 const TESTNET = 'TESTNET'
 
@@ -109,7 +107,7 @@ export class PrivateKey {
         
         // Add the witness data to the transaction.
         transaction.inputs.addWitness(inputIndex, this.publicKey, bitcoinSignature)
-        
+
         return transaction
     }
 }

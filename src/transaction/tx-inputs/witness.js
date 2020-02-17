@@ -1,4 +1,51 @@
 
+// export class SignatureScript {
+
+//     constructor(bitcoinSignature, scriptLength) {
+//         this.bitcoinSignature = bitcoinSignature
+//         this.scriptLength = scriptLength
+//     }
+
+//     write(writer) {
+//         this.scriptLength.write(writer)
+//         this.bitcoinSignature.write(writer)
+//     }
+
+//     byteLength() {
+//         return this.bitcoinSignature.byteLength() + this.scriptLength.byteLength()
+//     }
+
+//     static read(reader) {
+//         const scriptLength = Uint8.read(reader)
+//         const bitcoinSignature = BitcoinSignature.read(reader)
+//         return new SignatureScript(bitcoinSignature, scriptLength)
+//     }
+// }
+
+// export class PublicKeyScript extends SerialBuffer {
+
+//     constructor(buffer, length) {
+//         super()
+//         this.buffer = buffer
+//         this.length = length
+//     }
+
+//     write(writer) {
+//         this.length.write(writer)
+//         writer.writeBytes(this._buffer)
+//     }
+
+//     byteLength() {
+//         return this.length + this.length.byteLength()
+//     }
+
+//     static read(reader) {
+//         const length = VarInt.read(reader)
+//         const compressed = reader.readBytes(length)
+//         return new PublicKeyScript(compressed, length)
+//     }
+// }
+
 // class Witnesses {
 
 //     constructor(witnesses) {

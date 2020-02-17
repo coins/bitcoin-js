@@ -2,6 +2,7 @@ import * as Wallet from './wallet.js'
 import { TestnetPrivateKey } from '../private-key/private-key.js'
 import * as Address from '../address/address.js'
 import { StandardTransaction } from '../../transaction/transaction.js'
+import { Script } from '../../transaction/bitcoin-script/bitcoin-script.js'
 import { SHA256d } from '../../../../hash-js/hash.js'
 
 
@@ -9,7 +10,8 @@ import { SHA256d } from '../../../../hash-js/hash.js'
 describe('A wallet', function() {
 
     it('can build a transaction', async function() {
-        Wallet.pay()
+        // const signedTx = await Wallet.pay()
+        // console.log(signedTx)
     })
 
 })
@@ -42,3 +44,18 @@ describe('Transaction builder', function() {
     })
 
 })
+
+
+
+// const tx = new StandardTransaction()
+// tx.inputs.add('a8553d45f48c88adcbccd0676b9b6ff3f08241fdd7b85f1c8c01925bbcab150c',1)
+
+// tx.outputs.add(1914000n, 'n4AYuETorj4gYKendz2ndm9QhjUuruZnfk')
+// tx.inputs._inputs[0].scriptSig = new Script(new Uint8Array([0x01,0x75,0x01,0x52]))
+// console.log(tx.toHex())
+
+
+
+
+
+

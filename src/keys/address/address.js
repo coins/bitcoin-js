@@ -108,3 +108,40 @@ export async function fromPublicKeyHex(publicKeyHex, network = 'MAINNET'){
     return addressToScriptPubKey(address)
 }
 
+
+
+
+
+/**
+ * Generates a P2PKH address from a compressed public key
+ * P2PKH means "pay to public key hash" 
+ * 
+ * @param {Buffer} publicKey - the compressed public key
+ * @return {Promise<Buffer>} - the p2pkhAddress 
+ * 
+ */
+export async function scriptToP2SH(script, network = 'MAINNET') {
+
+    // 2 - Perform SHA-256 hashing on the public key
+    // 3 - Perform RIPEMD-160 hashing on the result of SHA-256
+    const hash = await HASH160.hash(script)
+
+    // 4 - Add version byte in front of RIPEMD-160 hash (0x00 for Main Network)
+    const versioned = NETWORK_VERSION[network] + hash.toHex()
+
+
+    // (note that below steps are the Base58Check encoding, which has multiple library options available implementing it)
+
+    // 5 - Perform SHA-256 hash on the extended RIPEMD-160 result
+    // 6 - Perform SHA-256 hash on the result of the previous SHA-256 hash
+    const versionedHash = await SHA256d.hashHex(versioned)
+
+    // 7 - Take the first 4 bytes of the second SHA-256 hash. This is the address checksum
+    const checksum = versionedHash.slice(0, 4).toHex()
+
+    // 8 - Add the 4 checksum bytes from stage 7 at the end of extended RIPEMD-160 hash from stage 4. This is the 25-byte binary Bitcoin Address.
+    const addressHex = versioned + checksum
+
+    // 9 - Convert the result from a byte string into a base58 string using Base58Check encoding. This is the most commonly used Bitcoin Address format
+    return Buffer.fromHex(addressHex).toBase58()
+}

@@ -1,6 +1,6 @@
 import { Buffer, SerialBuffer, VarInt, Uint64, Uint32, Uint8, SerialReader } from '../../../../buffer-js/buffer.js'
 import { SerialSHA256d } from '../../../../hash-js/hash.js'
-import { PublicKeyScript, SignatureScript, Script } from '../bitcoin-script/bitcoin-script.js'
+import { Script } from '../bitcoin-script/bitcoin-script.js'
 
 /**
  * Class managing the inputs of a transaction.
