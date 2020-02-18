@@ -14,11 +14,12 @@ await secret.toAddress()
 <h1>Bitcoin Address Generator</h1>
 <div>Secret: <span id="$secret"></span></div>
 <div>Address: <span id="$address"></span></div>
+
 <script type="module">
-import * as bitcoin from 'https://coins.github.io/bitcoin-js/bitcoin.js'
-const secret = bitcoin.PrivateKey.generate()
-secret.export().then(wif => $secret.textContent = wif) 
-secret.toAddress().then(address => $address.textContent = address)
+	import * as bitcoin from 'https://coins.github.io/bitcoin-js/bitcoin.js'
+	const secret = bitcoin.PrivateKey.generate()
+	secret.export().then(wif => $secret.textContent = wif) 
+	secret.toAddress().then(address => $address.textContent = address)
 </script>
 ```
 
