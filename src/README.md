@@ -1,5 +1,5 @@
 # bitcoin.js
-Bitcoin data structures
+Bitcoin tools implemented in ES6.
 
 ## Example Usage 
 
@@ -16,8 +16,9 @@ await secret.toAddress()
 <div>Address: <span id="$address"></span></div>
 
 <script type="module">
-	import * as bitcoin from 'https://coins.github.io/bitcoin-js/bitcoin.js'
-	const secret = bitcoin.PrivateKey.generate()
+	import { PrivateKey } from 'https://coins.github.io/bitcoin-js/bitcoin.js'
+	
+	const secret = PrivateKey.generate()
 	secret.export().then(wif => $secret.textContent = wif) 
 	secret.toAddress().then(address => $address.textContent = address)
 </script>
@@ -25,5 +26,5 @@ await secret.toAddress()
 
 ... encoded in a dataurl:
 ```
-data:text/html;base64,PHRpdGxlPkJpdGNvaW4gQWRkcmVzcyBHZW5lcmF0b3I8L3RpdGxlPgo8aDE+Qml0Y29pbiBBZGRyZXNzIEdlbmVyYXRvcjwvaDE+CjxkaXY+U2VjcmV0OiA8c3BhbiBpZD0iJHNlY3JldCI+PC9zcGFuPjwvZGl2Pgo8ZGl2PkFkZHJlc3M6IDxzcGFuIGlkPSIkYWRkcmVzcyI+PC9zcGFuPjwvZGl2Pgo8c2NyaXB0IHR5cGU9Im1vZHVsZSI+CmltcG9ydCAqIGFzIGJpdGNvaW4gZnJvbSAnaHR0cHM6Ly9jb2lucy5naXRodWIuaW8vYml0Y29pbi1qcy9iaXRjb2luLmpzJwpjb25zdCBzZWNyZXQgPSBiaXRjb2luLlByaXZhdGVLZXkuZ2VuZXJhdGUoKQpzZWNyZXQuZXhwb3J0KCkudGhlbih3aWYgPT4gJHNlY3JldC50ZXh0Q29udGVudCA9IHdpZikgCnNlY3JldC50b0FkZHJlc3MoKS50aGVuKGFkZHJlc3MgPT4gJGFkZHJlc3MudGV4dENvbnRlbnQgPSBhZGRyZXNzKQo8L3NjcmlwdD4=
+data:text/html;base64,PHRpdGxlPkRlbW9fUHJvamVjdDwvdGl0bGU+CjxoMT5CaXRjb2luIEFkZHJlc3MgR2VuZXJhdG9yPC9oMT4KPGRpdj5TZWNyZXQ6IDxzcGFuIGlkPSIkc2VjcmV0Ij48L3NwYW4+PC9kaXY+CjxkaXY+QWRkcmVzczogPHNwYW4gaWQ9IiRhZGRyZXNzIj48L3NwYW4+PC9kaXY+Cgo8c2NyaXB0IHR5cGU9Im1vZHVsZSI+CglpbXBvcnQge1ByaXZhdGVLZXl9IGZyb20gJ2h0dHBzOi8vY29pbnMuZ2l0aHViLmlvL2JpdGNvaW4tanMvYml0Y29pbi5qcycKCQoJY29uc3Qgc2VjcmV0ID0gUHJpdmF0ZUtleS5nZW5lcmF0ZSgpCglzZWNyZXQuZXhwb3J0KCkudGhlbih3aWYgPT4gJHNlY3JldC50ZXh0Q29udGVudCA9IHdpZikgCglzZWNyZXQudG9BZGRyZXNzKCkudGhlbihhZGRyZXNzID0+ICRhZGRyZXNzLnRleHRDb250ZW50ID0gYWRkcmVzcykKPC9zY3JpcHQ+
 ```
