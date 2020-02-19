@@ -12,7 +12,7 @@ export class BlockHeader extends SerialBuffer {
      * @param  {SerialSHA256d}     prevBlockId - The previous block's hash.
      * @param  {SerialSHA256d}     merkleRoot - This block's transactions' Merkle root.
      * @param  {TimeStamp}         timeStamp - This block's creation date. 
-     * @param  {DifficultyBits}    bits - The proof-of-work's target difficulty.
+     * @param  {DifficultyBits}    bits - The target difficulty for the proof-of-work.
      * @param  {Uint32}            nonce - The nonce to solve the proof-of-work puzzle.
      *
      * @see https://en.bitcoin.it/wiki/Block_hashing_algorithm
