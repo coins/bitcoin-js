@@ -1,4 +1,4 @@
-import { Buffer, SerialBuffer, VarInt, Uint64, Uint32, Uint8, SerialReader } from '../../../../buffer-js/buffer.js'
+import { SerialBuffer, VarInt, Uint64 } from '../../../../buffer-js/buffer.js'
 import { addressToScriptPubKey } from '../../keys/address/address.js'
 import { Script } from '../bitcoin-script/bitcoin-script.js'
 
