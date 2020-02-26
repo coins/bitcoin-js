@@ -7,13 +7,13 @@ export class BitcoinSignature extends SerialBuffer {
      * The DER encoded ECDSA signature.
      * @type {SignatureDER}
      */
-    signatureDER
+    //signatureDER
 
     /**
      * The signature's hash flag.
      * @type {SighashFlag}
      */
-    sighashFlag
+    //sighashFlag
 
     /**
      * @param  {SignatureDER} signatureDER - The DER encoded ECDSA signature.

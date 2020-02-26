@@ -12,25 +12,25 @@ export class Transaction extends SerialBuffer {
      * The version of this transaction.
      * @type {Uint32} 
      */
-    version
+    // version
 
     /**
      * The inputs of this transaction.
      * @type {TxInputs}
      */
-    inputs
+    // inputs
 
     /**
      * The outputs of this transaction.
      * @type {TxOutputs}
      */
-    outputs
+    // outputs
 
     /**
      * The lock time of this transaction.
      * @type {Uint32}
      */
-    lockTime
+    // lockTime
 
 
     /**
@@ -57,7 +57,7 @@ export class Transaction extends SerialBuffer {
      * 
      * Read a Transaction from a byte reader.
      * 
-     * @param {Reader} reader - the Reader to read from.
+     * @param {SerialReader} reader - the Reader to read from.
      * @return {Transaction}
      * @override
      */

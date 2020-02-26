@@ -17,7 +17,7 @@ export class TxOutputs extends SerialBuffer {
 
     /**
      * Read bytes from a reader.
-     * @param {Reader} reader - The Reader to read from.
+     * @param {SerialReader} reader - The Reader to read from.
      * @return {TxOutputs} - The read TxOutputs instance.
      */
     static read(reader) {
@@ -78,13 +78,13 @@ class TxOutput extends SerialBuffer {
      * It is denoted in Satoshis ( 1 sat = 1e-8 BTC ).
      * @type {TxValue}
      */
-    value
+    //value
 
     /**
      * The locking script for this output.
      * @type {Script}
      */
-    scriptPubKey
+    //scriptPubKey
 
     /**
      * Create a transaction output.
@@ -110,7 +110,7 @@ class TxOutput extends SerialBuffer {
 
     /**
      * Read bytes from a reader.
-     * @param {Reader} reader - The Reader to read from.
+     * @param {SerialReader} reader - The Reader to read from.
      * @return {TxOutput} - The read TxOutput instance.
      */
     static read(reader) {

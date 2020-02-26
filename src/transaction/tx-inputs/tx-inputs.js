@@ -12,7 +12,7 @@ export class TxInputs extends SerialBuffer {
      * The array of inputs managed here.
      * @type TxInput[]
      */
-    _inputs
+    //_inputs
 
     /**
      * @param  {TxInput[]} inputs - An array of inputs.
@@ -116,25 +116,25 @@ class TxInput extends SerialBuffer {
      * The hash of the transaction creating the output to be spent in this input.
      * @type {SerialSHA256d}
      */
-    prevTxOutHash
+    //prevTxOutHash
 
     /**
      * The output index of the output to be spent in this input. 
      * @type {Number}
      */
-    prevTxOutIndex
+    //prevTxOutIndex
 
     /**
      * The unlocking script.
      * @type {Script}
      */
-    scriptSig
+    //scriptSig
 
     /**
      * The input's sequence number.
      * @type {Uint32}
      */
-    sequence
+    //sequence
 
     /**
      * @param  {SerialSHA256d} prevTxOutHash - The hash of the transaction creating the output to be spent in this input.
