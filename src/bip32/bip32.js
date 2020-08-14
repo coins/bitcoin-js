@@ -9,16 +9,16 @@ import { concat } from '../../../buffer-js/src/buffer-utils/buffer-utils.js'
 
 /**
  * 
- * Convert a seed to a Master Private Key
+ * Derive a Master Private Key from a seed
  * @param  {Buffer} seed The seed.
  * @return {Buffer}      The corresponding Master Private Key.
  */
 export async function seedToMasterKey(seed) {
 
-    const I = await hmac_sha512(Buffer.fromUnicode('Bitcoin seed'), seed)
+    const buffer = await hmac_sha512(Buffer.fromUnicode('Bitcoin seed'), seed)
 
-    const privateKey = I.slice(0, 32)
-    const chainCode = I.slice(32)
+    const privateKey = buffer.slice(0, 32)
+    const chainCode = buffer.slice(32)
 
     const version = '0488ADE4'
     const depth = '00'
@@ -38,5 +38,5 @@ export async function seedToMasterKey(seed) {
     // 6 - Add the 4 checksum bytes from point 5 at the end of the serialized data
     const result = concat(serialized,checksum)
 
-    return new Buffer(result)
+    return result
 }

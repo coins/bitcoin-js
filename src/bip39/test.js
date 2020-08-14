@@ -1,9 +1,25 @@
-import { mnemonicToSeed } from './bip39.js'
+import { mnemonicToSeed, entropyToMnemonic, generateMnemonic } from './bip39.js'
 import { Buffer } from '../../../buffer-js/buffer.js'
 
 describe('The bip39 lib', function() {
 
-    it('can compute a seed from mnemonic words', async function() {
+    it('can derive mnemonic phrase from entropy', async function() {
+        const testCases = allTestCases['english']
+
+        for (let i = 0; i < testCases.length; i++) {
+            const testcase = testCases[i]
+            const [entropy, expectedMnemonic] = testcase
+
+            const mnemonic = await entropyToMnemonic(Buffer.fromHex(entropy))
+
+
+            expect(mnemonic).toBe(expectedMnemonic)
+
+        }
+
+    })
+
+    it('can derive a seed from mnemonic phrase', async function() {
 
         const testCases = allTestCases['english']
 
@@ -21,6 +37,17 @@ describe('The bip39 lib', function() {
         }
     })
 
+
+    it('can generate a mnemonic phrase', async function() {
+
+        const _12_words = await generateMnemonic()
+        expect(_12_words.split(' ').length).toBe(12)
+
+        const _24_words = await generateMnemonic(256)
+        expect(_24_words.split(' ').length).toBe(24)
+
+
+    })
 })
 
 
