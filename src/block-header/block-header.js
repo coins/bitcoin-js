@@ -61,7 +61,7 @@ export class BlockHeader extends SerialBuffer {
             this.merkleRoot.byteLength() +
             this.timeStamp.byteLength() +
             this.bits.byteLength() +
-            this.nonce.byteLength()
+            this.nonce.byteLength();
     }
 
     /**
