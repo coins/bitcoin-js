@@ -104,6 +104,13 @@ export class Transaction extends SerialBuffer {
     sigHashAllCopy(inputIndex, publicKeyScript) {
         return this.sigHashCopy(inputIndex, SighashFlag.SIGHASH_ALL, publicKeyScript)
     }
+
+    toString() {
+        return this.version.toString() +
+            this.inputs.toString() +
+            this.outputs.toString() +
+            this.lockTime.toString()
+    }
 }
 
 

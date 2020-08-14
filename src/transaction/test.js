@@ -69,8 +69,6 @@ describe('A Bitcoin Transaction', function() {
         // expect(signatureHash.toHex()).toBe(TX_3_INPUT_0_SIGHASH)
     })
 
-
-
     xit('can verify its scripts', async function() {
         const tx_hex = ''
         const expected_txid = 'a0ff943d3f644d8832b1fa74be4d0ad2577615dc28a7ef74ff8c271b603a082a'
